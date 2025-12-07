@@ -1,10 +1,9 @@
 import { Tabs } from 'expo-router';
 import React from 'react';
-
 import { HapticTab } from '@/components/haptic-tab';
-import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { User, ShoppingBag, Plus, Package, List } from 'lucide-react-native';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
@@ -17,19 +16,41 @@ export default function TabLayout() {
         tabBarButton: HapticTab,
       }}>
       <Tabs.Screen
-        name="index"
+        name="products"
         options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          title: 'Products',
+          tabBarIcon: ({ color }) => <Package size={24} color={color} />,
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="cart"
         options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          title: 'Cart',
+          tabBarIcon: ({ color }) => <ShoppingBag size={24} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="add-product"
+        options={{
+          title: 'Add Product',
+          tabBarIcon: ({ color }) => <Plus size={24} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="orders"
+        options={{
+          title: 'Orders',
+          tabBarIcon: ({ color }) => <List size={24} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="profile"
+        options={{
+          title: 'Profile',
+          tabBarIcon: ({ color }) => <User size={24} color={color} />,
         }}
       />
     </Tabs>
   );
 }
+
