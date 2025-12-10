@@ -1,10 +1,10 @@
-import React from "react";
-import { View, Text, ScrollView, Pressable, StyleSheet } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { router } from "expo-router";
-import { useAuthContext } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
-import { User, Mail, LogOut, Package } from "lucide-react-native";
+import { useAuthContext } from "@/contexts/AuthContext";
+import { router } from "expo-router";
+import { Mail, Package, User } from "lucide-react-native";
+import React from "react";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function ProfileScreen() {
   const { user, logout } = useAuthContext();
@@ -15,7 +15,7 @@ export default function ProfileScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
       <ScrollView>
         <View style={styles.content}>
           {/* Header */}
@@ -34,7 +34,8 @@ export default function ProfileScreen() {
             <Text style={styles.userEmail}>{user?.email || ""}</Text>
             <View style={styles.roleBadge}>
               <Text style={styles.roleText}>
-                {user?.role?.charAt(0).toUpperCase() + user?.role?.slice(1) || "Customer"}
+                {user?.role?.charAt(0).toUpperCase() +
+                  (user?.role?.slice(1) || "") || "User"}
               </Text>
             </View>
           </View>
@@ -42,7 +43,7 @@ export default function ProfileScreen() {
           {/* User Details */}
           <View style={styles.card}>
             <Text style={styles.sectionTitle}>Account Information</Text>
-            
+
             <View style={styles.infoRow}>
               <View style={styles.infoIcon}>
                 <User size={20} color="#6B7280" />
@@ -70,7 +71,8 @@ export default function ProfileScreen() {
               <View style={styles.infoContent}>
                 <Text style={styles.infoLabel}>Role</Text>
                 <Text style={styles.infoValue}>
-                  {user?.role?.charAt(0).toUpperCase() + user?.role?.slice(1) || "Customer"}
+                  {(user?.role?.charAt(0).toUpperCase() || "") +
+                    (user?.role?.slice(1) || "") || "User"}
                 </Text>
               </View>
             </View>
@@ -195,4 +197,3 @@ const styles = StyleSheet.create({
     marginTop: 24,
   },
 });
-

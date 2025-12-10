@@ -1,15 +1,20 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import { I18nManager, Platform } from 'react-native';
-import { useEffect } from 'react';
-import 'react-native-reanimated';
+import {
+  DarkTheme,
+  DefaultTheme,
+  ThemeProvider,
+} from "@react-navigation/native";
+import { Stack } from "expo-router";
+import { StatusBar } from "expo-status-bar";
+import { useEffect } from "react";
+import { I18nManager } from "react-native";
+import "react-native-reanimated";
 
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useColorScheme } from "@/hooks/use-color-scheme";
 
-import { GluestackUIProvider } from '@/components/ui/gluestack-ui-provider';
-import { AuthProvider } from '@/contexts/AuthContext';
-import '@/global.css';
+import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
+import { AuthProvider } from "@/contexts/AuthContext";
+import { CartProvider } from "@/contexts/CartContext";
+import "@/global.css";
 
 // Force LTR layout on app initialization
 if (I18nManager.isRTL || I18nManager.allowRTL) {
@@ -18,7 +23,7 @@ if (I18nManager.isRTL || I18nManager.allowRTL) {
 }
 
 export const unstable_settings = {
-  initialRouteName: '(auth)',
+  initialRouteName: "(auth)",
 };
 
 export default function RootLayout() {
@@ -32,15 +37,17 @@ export default function RootLayout() {
 
   return (
     <GluestackUIProvider mode="light">
-      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+      <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
         <AuthProvider>
-          <Stack screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="index" />
-            <Stack.Screen name="(auth)" />
-            <Stack.Screen name="(tabs)" />
-            <Stack.Screen name="products" />
-            <Stack.Screen name="orders" />
-          </Stack>
+          <CartProvider>
+            <Stack screenOptions={{ headerShown: false }}>
+              <Stack.Screen name="index" />
+              <Stack.Screen name="(auth)" />
+              <Stack.Screen name="(tabs)" />
+              <Stack.Screen name="products" />
+              <Stack.Screen name="orders" />
+            </Stack>
+          </CartProvider>
           <StatusBar style="auto" />
         </AuthProvider>
       </ThemeProvider>

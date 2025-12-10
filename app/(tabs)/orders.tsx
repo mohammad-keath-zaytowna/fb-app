@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from "react";
-import { View, Text, Pressable, StyleSheet, FlatList } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { router } from "expo-router";
 import { getOrders } from "@/lib/api/orders";
 import { Order } from "@/types";
+import { router } from "expo-router";
 import { Receipt } from "lucide-react-native";
+import React, { useEffect, useState } from "react";
+import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 type FilterTab = "all" | "pending" | "completed" | "canceled";
 
@@ -21,7 +21,7 @@ export default function OrdersScreen() {
     setIsLoading(true);
     try {
       const status =
-        activeTab === "all" ? undefined : activeTab.toUpperCase();
+        activeTab === "all" ? undefined : activeTab;
       const response = await getOrders({
         page: 1,
         rowsPerPage: 20,
@@ -97,7 +97,7 @@ export default function OrdersScreen() {
   );
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>My Orders</Text>

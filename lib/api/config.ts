@@ -1,10 +1,10 @@
-import axios, { AxiosInstance, AxiosResponse } from "axios";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { ApiError } from "@/types";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios, { AxiosInstance, AxiosResponse } from "axios";
 
 // API Configuration
 export const API_BASE_URL =
-  process.env.EXPO_PUBLIC_BACKEND_URL || "http://192.168.1.9:5000/api";
+  process.env.EXPO_PUBLIC_BACKEND_URL || "http://10.33.21.234:5000/api";
 
 // Create axios instance
 const apiClient: AxiosInstance = axios.create({
@@ -84,4 +84,3 @@ apiClient.interceptors.response.use(
 );
 
 export default apiClient;
-

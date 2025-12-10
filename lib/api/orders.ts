@@ -6,7 +6,7 @@ export interface GetOrdersParams {
   rowsPerPage?: number;
   search?: string;
   status?: string;
-  customer?: string;
+  user?: string;
   sort?: string;
   sortBy?: string;
   startDate?: string;
@@ -40,8 +40,8 @@ export const getOrders = async (
       queryParams.status = params.status;
     }
 
-    if (params?.customer && params.customer.trim() !== "") {
-      queryParams.customer = params.customer;
+    if (params?.user && params.user.trim() !== "") {
+      queryParams.user = params.user;
     }
 
     if (params?.sort) {
@@ -92,12 +92,12 @@ export const createOrder = async (orderData: {
     color?: string;
     price: number;
   }>;
-  customerName: string;
+  userName: string;
   phoneNumber: string;
   address: string;
   shipping: number;
   notes?: string;
-  customerNotes?: string;
+  userNotes?: string;
   facebookProfile?: string;
 }): Promise<Order> => {
   try {

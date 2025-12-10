@@ -1,18 +1,26 @@
-import React, { useState, useEffect } from "react";
-import { View, Text, ScrollView, Pressable, StyleSheet, TextInput, Alert } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { router, useLocalSearchParams } from "expo-router";
-import { useForm, FormProvider } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import { orderFormSchema } from "@/lib/forms/order";
+import { Button } from "@/components/ui/button";
+import { API_BASE_URL } from "@/lib/api/config";
 import { createOrder } from "@/lib/api/orders";
 import { getProductById } from "@/lib/api/products";
-import { Product, OrderItem } from "@/types";
+import { orderFormSchema } from "@/lib/forms/order";
+import { OrderItem, Product } from "@/types";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Image } from "expo-image";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft, X, Plus, Minus, Trash2 } from "lucide-react-native";
-import { API_BASE_URL } from "@/lib/api/config";
+import { router, useLocalSearchParams } from "expo-router";
+import { ArrowLeft, Minus, Plus, Trash2 } from "lucide-react-native";
+import React, { useEffect, useState } from "react";
+import { FormProvider, useForm } from "react-hook-form";
+import {
+  Alert,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import * as z from "zod";
 
 interface CartItem extends OrderItem {
   prod_id: Product;
@@ -33,12 +41,12 @@ export default function NewOrderScreen() {
   const form = useForm<z.infer<typeof orderFormSchema>>({
     resolver: zodResolver(orderFormSchema),
     defaultValues: {
-      customerName: "",
+      userName: "",
       phoneNumber: "",
       address: "",
       shipping: 10,
       notes: "",
-      customerNotes: "",
+      userNotes: "",
       facebookProfile: "",
     },
     mode: "onChange",
@@ -57,7 +65,7 @@ export default function NewOrderScreen() {
     try {
       const product = await getProductById(productId);
       const qty = quantity ? parseInt(quantity, 10) : 1;
-      
+
       setCartItems([
         {
           prod_id: product,
@@ -112,19 +120,20 @@ export default function NewOrderScreen() {
     try {
       const orderData = {
         items: cartItems.map((item) => ({
-          prod_id: typeof item.prod_id === "object" ? item.prod_id._id : item.prod_id,
+          prod_id:
+            typeof item.prod_id === "object" ? item.prod_id._id : item.prod_id,
           count: item.count,
           size: item.size,
           color: item.color,
           price: item.price,
         })),
-        customerName: data.customerName,
+        userName: data.userName,
         phoneNumber: data.phoneNumber,
         address: data.address,
         shipping: data.shipping,
         total: calculateTotal(),
         notes: data.notes || undefined,
-        customerNotes: data.customerNotes || undefined,
+        userNotes: data.userNotes || undefined,
         facebookProfile: data.facebookProfile || undefined,
       };
 
@@ -139,8 +148,10 @@ export default function NewOrderScreen() {
 
   if (isLoadingProduct) {
     return (
-      <SafeAreaView style={styles.container} edges={['top']}>
-        <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+      <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
+        <View
+          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+        >
           <Text>Loading product...</Text>
         </View>
       </SafeAreaView>
@@ -148,7 +159,7 @@ export default function NewOrderScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
       <ScrollView>
         {/* Header */}
         <View style={styles.header}>
@@ -165,12 +176,13 @@ export default function NewOrderScreen() {
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Order Items</Text>
               {cartItems.map((item, index) => {
-                const product = typeof item.prod_id === "object" ? item.prod_id : null;
+                const product =
+                  typeof item.prod_id === "object" ? item.prod_id : null;
                 if (!product) return null;
 
-                const imageUri = product.image?.startsWith('http') 
-                  ? product.image 
-                  : `${API_BASE_URL.replace('/api', '')}${product.image}`;
+                const imageUri = product.image?.startsWith("http")
+                  ? product.image
+                  : `${API_BASE_URL.replace("/api", "")}${product.image}`;
 
                 return (
                   <View key={index} style={styles.cartItem}>
@@ -181,7 +193,9 @@ export default function NewOrderScreen() {
                     />
                     <View style={styles.itemDetails}>
                       <Text style={styles.itemName}>{product.name}</Text>
-                      <Text style={styles.itemPrice}>${item.price.toFixed(2)}</Text>
+                      <Text style={styles.itemPrice}>
+                        ${item.price.toFixed(2)}
+                      </Text>
                       {(item.size || item.color) && (
                         <Text style={styles.itemVariant}>
                           {[item.size, item.color].filter(Boolean).join(" • ")}
@@ -239,18 +253,18 @@ export default function NewOrderScreen() {
             </View>
           )}
 
-          {/* Customer Information */}
+          {/* User Information */}
           <FormProvider {...form}>
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Customer Information</Text>
+              <Text style={styles.sectionTitle}>User Information</Text>
 
               <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Customer Name *</Text>
+                <Text style={styles.inputLabel}>User Name *</Text>
                 <TextInput
                   style={styles.input}
-                  placeholder="Enter customer name"
-                  value={form.watch("customerName")}
-                  onChangeText={(text) => form.setValue("customerName", text)}
+                  placeholder="Enter user name"
+                  value={form.watch("userName")}
+                  onChangeText={(text) => form.setValue("userName", text)}
                 />
               </View>
 
@@ -311,14 +325,14 @@ export default function NewOrderScreen() {
               </View>
 
               <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Customer Notes</Text>
+                <Text style={styles.inputLabel}>User Notes</Text>
                 <TextInput
                   style={[styles.input, styles.textArea]}
                   multiline
                   numberOfLines={3}
                   placeholder="e.g. Please wrap as a gift."
-                  value={form.watch("customerNotes")}
-                  onChangeText={(text) => form.setValue("customerNotes", text)}
+                  value={form.watch("userNotes")}
+                  onChangeText={(text) => form.setValue("userNotes", text)}
                   textAlignVertical="top"
                 />
               </View>
@@ -331,7 +345,9 @@ export default function NewOrderScreen() {
                     style={styles.facebookInputField}
                     placeholder="profile.link"
                     value={form.watch("facebookProfile")}
-                    onChangeText={(text) => form.setValue("facebookProfile", text)}
+                    onChangeText={(text) =>
+                      form.setValue("facebookProfile", text)
+                    }
                   />
                 </View>
               </View>
@@ -557,4 +573,3 @@ const styles = StyleSheet.create({
     color: "#111827",
   },
 });
-

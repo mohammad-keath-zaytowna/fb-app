@@ -18,7 +18,7 @@ export default function IndexScreen() {
   }, [isAuthenticated, isLoading]);
 
   return (
-    <SafeAreaView style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+    <SafeAreaView style={{ flex: 1, justifyContent: "center", alignItems: "center" }} edges={['top', 'bottom']}>
       <ActivityIndicator size="large" />
       <Text style={{ marginTop: 16 }}>Loading...</Text>
     </SafeAreaView>

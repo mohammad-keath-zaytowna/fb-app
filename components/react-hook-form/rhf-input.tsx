@@ -68,6 +68,7 @@ function RHFInput({
               editable={!disabled}
               secureTextEntry={type === "password" && !showPassword}
               keyboardType={type === "number" ? "numeric" : type === "email" ? "email-address" : "default"}
+              style={{ textAlign: 'left' }}
             />
             {showPasswordToggle && type === "password" && (
               <InputSlot

@@ -16,6 +16,7 @@ export const loginApiMethod = async ({
   password: string;
 }): Promise<LoginResponse> => {
   try {
+    console.log('api path', apiClient.defaults.baseURL);
     const { data } = await apiClient.post("/auth/login", { email, password });
 
     // Store access token

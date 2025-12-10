@@ -1,19 +1,19 @@
-import React, { useState, useEffect } from "react";
-import { View, Text, ScrollView, Pressable, StyleSheet, TextInput } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { router, useLocalSearchParams } from "expo-router";
-import { getOrderById } from "@/lib/api/orders";
+import { Button } from "@/components/ui/button";
 import { API_BASE_URL } from "@/lib/api/config";
+import { getOrderById } from "@/lib/api/orders";
 import { Order } from "@/types";
 import { Image } from "expo-image";
-import { Button } from "@/components/ui/button";
+import { router, useLocalSearchParams } from "expo-router";
 import { ArrowLeft, MoreVertical } from "lucide-react-native";
+import React, { useEffect, useState } from "react";
+import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function OrderDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const [order, setOrder] = useState<Order | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [customerNotes, setCustomerNotes] = useState("");
+  const [userNotes, setUserNotes] = useState("");
   const [facebookProfile, setFacebookProfile] = useState("");
 
   useEffect(() => {
@@ -27,7 +27,7 @@ export default function OrderDetailScreen() {
     try {
       const data = await getOrderById(id);
       setOrder(data);
-      setCustomerNotes(data.customerNotes || "");
+      setUserNotes(data.userNotes || "");
       setFacebookProfile(data.facebookProfile || "");
     } catch (error) {
       console.error("Failed to load order:", error);
@@ -38,7 +38,7 @@ export default function OrderDetailScreen() {
 
   if (isLoading || !order) {
     return (
-      <SafeAreaView style={styles.container} edges={['top']}>
+      <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
         <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
           <Text>Loading...</Text>
         </View>
@@ -61,7 +61,7 @@ export default function OrderDetailScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
       <ScrollView>
         {/* Header */}
         <View style={styles.header}>
@@ -158,14 +158,14 @@ export default function OrderDetailScreen() {
           <Text style={styles.sectionTitle}>Notes & Contact</Text>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>Customer Notes</Text>
+            <Text style={styles.inputLabel}>User Notes</Text>
             <TextInput
               style={styles.textArea}
               multiline
               numberOfLines={4}
               placeholder="e.g. Please wrap as a gift."
-              value={customerNotes}
-              onChangeText={setCustomerNotes}
+              value={userNotes}
+              onChangeText={setUserNotes}
               textAlignVertical="top"
             />
           </View>

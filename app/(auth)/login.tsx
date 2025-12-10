@@ -49,69 +49,61 @@ export default function LoginScreen() {
 
   return (
     <SafeAreaView style={{ flex: 1 }} edges={['top', 'bottom']}>
-      <ScrollView 
+      <ScrollView
         contentContainerStyle={styles.container}
         className="bg-gray-50"
       >
-      <View style={styles.content}>
-        {/* Logo */}
-        <View style={styles.logoContainer}>
-          <View style={styles.logo}>
-            <Text style={styles.logoText}>💎</Text>
-          </View>
-          <Text style={styles.logoLabel}>LOREM IPSUM</Text>
-        </View>
-
-        {/* Welcome Text */}
-        <Text style={styles.title}>Welcome back!</Text>
-        <Text style={styles.subtitle}>Log in to your account to continue.</Text>
-
-        {/* Form */}
-        <FormProvider {...form}>
-          <View style={styles.form}>
-            <RHFInput
-              name="email"
-              label="Email or Phone"
-              placeholder="Enter your email or phone"
-              type="email"
-            />
-
-            <View style={styles.passwordContainer}>
-              <RHFInput
-                name="password"
-                label="Password"
-                placeholder="Enter your password"
-                type="password"
-                showPasswordToggle
-              />
-              <Pressable
-                onPress={() => router.push("/(auth)/forgot-password")}
-                style={styles.forgotPasswordLink}
-              >
-                <Text style={styles.forgotPasswordText}>Forgot password?</Text>
-              </Pressable>
+        <View style={styles.content}>
+          {/* Logo */}
+          <View style={styles.logoContainer}>
+            <View style={styles.logo}>
+              <Text style={styles.logoText}>💎</Text>
             </View>
-
-            <Button
-              onPress={form.handleSubmit(handleSubmit)}
-              disabled={isLoading}
-              isLoading={isLoading}
-              size="lg"
-              className="w-full mt-4"
-            >
-              {isLoading ? "Logging In..." : "Login"}
-            </Button>
+            <Text style={styles.logoLabel}>LOREM IPSUM</Text>
           </View>
-        </FormProvider>
 
-        {/* Sign Up Link */}
-        <View style={styles.signupContainer}>
-          <Text style={styles.signupText}>Don't have an account? </Text>
-          <Pressable onPress={() => router.push("/(auth)/signup")}>
-            <Text style={styles.signupLink}>Sign Up</Text>
-          </Pressable>
+          {/* Welcome Text */}
+          <Text style={styles.title}>Welcome back!</Text>
+          <Text style={styles.subtitle}>Log in to your account to continue.</Text>
+
+          {/* Form */}
+          <FormProvider {...form}>
+            <View style={styles.form}>
+              <RHFInput
+                name="email"
+                label="Email or Phone"
+                placeholder="Enter your email or phone"
+                type="email"
+              />
+
+              <View style={styles.passwordContainer}>
+                <RHFInput
+                  name="password"
+                  label="Password"
+                  placeholder="Enter your password"
+                  type="password"
+                  showPasswordToggle
+                />
+                <Pressable
+                  onPress={() => router.push("/(auth)/forgot-password")}
+                  style={styles.forgotPasswordLink}
+                >
+                  <Text style={styles.forgotPasswordText}>Forgot password?</Text>
+                </Pressable>
+              </View>
+
+              <Button
+                onPress={form.handleSubmit(handleSubmit)}
+                disabled={isLoading}
+                isLoading={isLoading}
+                size="lg"
+                className="w-full mt-4"
+              >
+                {isLoading ? "Logging In..." : "Login"}
+              </Button>
+            </View>
+          </FormProvider>
         </View>
-      </View>
       </ScrollView>
     </SafeAreaView>
   );

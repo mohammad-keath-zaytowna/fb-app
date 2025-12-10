@@ -1,13 +1,14 @@
-import React, { useState, useEffect } from "react";
-import { View, Text, ScrollView, Pressable, StyleSheet } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { router, useLocalSearchParams } from "expo-router";
-import { getProductById } from "@/lib/api/products";
+import { Button } from "@/components/ui/button";
+import { useCartContext } from "@/contexts/CartContext";
 import { API_BASE_URL } from "@/lib/api/config";
+import { getProductById } from "@/lib/api/products";
 import { Product } from "@/types";
 import { Image } from "expo-image";
-import { Button } from "@/components/ui/button";
+import { router, useLocalSearchParams } from "expo-router";
 import { ArrowLeft } from "lucide-react-native";
+import React, { useEffect, useState } from "react";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function ProductDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -15,6 +16,9 @@ export default function ProductDetailScreen() {
   const [selectedSize, setSelectedSize] = useState<string>("M");
   const [selectedColor, setSelectedColor] = useState<string>("black");
   const [isLoading, setIsLoading] = useState(true);
+  const { isItemInCart, addToCart } = useCartContext();
+  const inCart = isItemInCart(id);
+  console.log("inCart", inCart);
 
   useEffect(() => {
     if (id) {
@@ -36,19 +40,21 @@ export default function ProductDetailScreen() {
 
   if (isLoading || !product) {
     return (
-      <SafeAreaView style={styles.container} edges={['top']}>
-        <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+      <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
+        <View
+          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+        >
           <Text>Loading...</Text>
         </View>
       </SafeAreaView>
     );
   }
 
-  const sizes = product.sizes || ["S", "M", "L", "XL"];
-  const colors = product.colors || ["black", "white", "blue"];
+  const sizes = product.sizes || [];
+  const colors = product.colors || [];
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
       <ScrollView>
         {/* Header */}
         <View style={styles.header}>
@@ -61,21 +67,13 @@ export default function ProductDetailScreen() {
         <View style={styles.imageContainer}>
           <Image
             source={{
-              uri: product.image?.startsWith('http')
+              uri: product.image?.startsWith("http")
                 ? product.image
-                : `${API_BASE_URL.replace('/api', '')}${product.image}`
+                : `${API_BASE_URL.replace("/api", "")}${product.image}`,
             }}
             style={styles.productImage}
             contentFit="cover"
           />
-          <View style={styles.dotsContainer}>
-            {[1, 2, 3, 4, 5].map((dot) => (
-              <View
-                key={dot}
-                style={[styles.dot, dot === 1 && styles.dotActive]}
-              />
-            ))}
-          </View>
         </View>
 
         {/* Product Info */}
@@ -129,34 +127,17 @@ export default function ProductDetailScreen() {
                   onPress={() => setSelectedColor(color)}
                 >
                   <View
-                    style={[
-                      styles.colorCircle,
-                      { backgroundColor: color },
-                    ]}
+                    style={[styles.colorCircle, { backgroundColor: color }]}
                   />
                 </Pressable>
               ))}
             </View>
           </View>
 
-        {/* Add to Order Button */}
-        <Button
-          size="lg"
-          className="w-full mt-6"
-          onPress={() => {
-            router.push({
-              pathname: "/orders/new",
-              params: { 
-                productId: product._id, 
-                size: selectedSize, 
-                color: selectedColor,
-                quantity: "1"
-              },
-            });
-          }}
-        >
-          Add to Order
-        </Button>
+          {/* Add to Order Button */}
+          <Button size="lg" className="w-full mt-6" onPress={() => {}}>
+            Add to Order
+          </Button>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -281,4 +262,3 @@ const styles = StyleSheet.create({
     borderColor: "#D1D5DB",
   },
 });
-

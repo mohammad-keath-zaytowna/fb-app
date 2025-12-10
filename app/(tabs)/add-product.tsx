@@ -1,16 +1,15 @@
-import React, { useState } from "react";
-import { View, Text, ScrollView, Pressable, StyleSheet, Alert } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { router } from "expo-router";
-import { useForm, FormProvider } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import { productFormSchema } from "@/lib/forms/product";
-import { createProduct } from "@/lib/api/products";
 import RHFInput from "@/components/react-hook-form/rhf-input";
 import { Button } from "@/components/ui/button";
-import { ImagePlus } from "lucide-react-native";
+import { createProduct } from "@/lib/api/products";
+import { productFormSchema } from "@/lib/forms/product";
+import { zodResolver } from "@hookform/resolvers/zod";
 import * as ImagePicker from "expo-image-picker";
+import { ImagePlus } from "lucide-react-native";
+import React, { useState } from "react";
+import { FormProvider, useForm } from "react-hook-form";
+import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import * as z from "zod";
 
 export default function AddProductScreen() {
   const [isLoading, setIsLoading] = useState(false);
@@ -75,7 +74,7 @@ export default function AddProductScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
       <ScrollView>
         <View style={styles.content}>
           {/* Header */}

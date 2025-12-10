@@ -1,22 +1,31 @@
-import React, { useState, useEffect } from "react";
-import { View, Text, Pressable, StyleSheet, FlatList } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { router } from "expo-router";
+import { API_BASE_URL } from "@/lib/api/config";
 import { getProducts } from "@/lib/api/products";
 import { Product } from "@/types";
 import { Image } from "expo-image";
-import { Search, Filter, X, Plus } from "lucide-react-native";
-import { API_BASE_URL } from "@/lib/api/config";
+import { router } from "expo-router";
+import { Plus, Search } from "lucide-react-native";
+import React, { useEffect, useState } from "react";
+import {
+  FlatList,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useDebounce } from "use-debounce";
 
 export default function ProductsScreen() {
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeFilter, setActiveFilter] = useState<string | null>("new");
+  // const [activeFilter, setActiveFilter] = useState<string | null>("new");
+  const [searchDebounced] = useDebounce(searchQuery, 200);
 
   useEffect(() => {
     loadProducts();
-  }, [searchQuery, activeFilter]);
+  }, [searchDebounced]);
 
   const loadProducts = async () => {
     setIsLoading(true);
@@ -24,7 +33,7 @@ export default function ProductsScreen() {
       const response = await getProducts({
         page: 1,
         rowsPerPage: 20,
-        search: searchQuery || undefined,
+        search: searchDebounced || undefined,
       });
       setProducts(response.products);
     } catch (error) {
@@ -51,55 +60,57 @@ export default function ProductsScreen() {
   };
 
   const renderProduct = ({ item }: { item: Product }) => {
-    const imageUri = item.image?.startsWith('http') 
-      ? item.image 
-      : `${API_BASE_URL.replace('/api', '')}${item.image}`;
-    
+    const imageUri = item.image?.startsWith("http")
+      ? item.image
+      : `${API_BASE_URL.replace("/api", "")}${item.image}`;
+
     return (
-    <Pressable
-      style={styles.productCard}
-      onPress={() => router.push(`/products/${item._id}`)}
-    >
-      <Image
-        source={{ uri: imageUri }}
-        style={styles.productImage}
-        contentFit="cover"
-      />
-      <View style={styles.productInfo}>
-        <Text style={styles.productName} numberOfLines={1}>
-          {item.name}
-        </Text>
-        <Text style={styles.productPrice}>${item.price.toFixed(2)}</Text>
-        <Text
-          style={[
-            styles.productStatus,
-            { color: getStatusColor(item.status) },
-          ]}
-        >
-          {item.status === "active" ? "In Stock" : item.status || "New Arrival"}
-        </Text>
-      </View>
-      <Pressable 
-        style={styles.addButton}
-        onPress={(e) => {
-          e.stopPropagation();
-          router.push({
-            pathname: "/orders/new",
-            params: { 
-              productId: item._id,
-              quantity: "1"
-            }
-          });
-        }}
+      <Pressable
+        style={styles.productCard}
+        onPress={() => router.push(`/products/${item._id}`)}
       >
-        <Plus size={20} color="#3B82F6" />
+        <Image
+          source={{ uri: imageUri }}
+          style={styles.productImage}
+          contentFit="cover"
+        />
+        <View style={styles.productInfo}>
+          <Text style={styles.productName} numberOfLines={1}>
+            {item.name}
+          </Text>
+          <Text style={styles.productPrice}>${item.price.toFixed(2)}</Text>
+          <Text
+            style={[
+              styles.productStatus,
+              { color: getStatusColor(item.status) },
+            ]}
+          >
+            {item.status === "active"
+              ? "In Stock"
+              : item.status || "New Arrival"}
+          </Text>
+        </View>
+        <Pressable
+          style={styles.addButton}
+          onPress={(e) => {
+            e.stopPropagation();
+            router.push({
+              pathname: "/orders/new",
+              params: {
+                productId: item._id,
+                quantity: "1",
+              },
+            });
+          }}
+        >
+          <Plus size={20} color="#3B82F6" />
+        </Pressable>
       </Pressable>
-    </Pressable>
     );
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Products</Text>
@@ -108,16 +119,16 @@ export default function ProductsScreen() {
       {/* Search Bar */}
       <View style={styles.searchContainer}>
         <Search size={20} color="#9CA3AF" />
-        <Text
+        <TextInput
           style={styles.searchInput}
-          onPress={() => {/* Handle search */ }}
-        >
-          Search for products...
-        </Text>
+          placeholder="Search for products..."
+          value={searchQuery}
+          onChangeText={(text) => setSearchQuery(text)}
+        />
       </View>
 
       {/* Filters */}
-      <View style={styles.filtersContainer}>
+      {/* <View style={styles.filtersContainer}>
         <Pressable style={styles.sortButton}>
           <Filter size={16} color="#6B7280" />
           <Text style={styles.sortButtonText}>Sort By</Text>
@@ -157,7 +168,7 @@ export default function ProductsScreen() {
             On Sale
           </Text>
         </Pressable>
-      </View>
+      </View>*/}
 
       {/* Products List */}
       {isLoading ? (
@@ -208,6 +219,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 16,
     color: "#9CA3AF",
+    textAlign: "left",
   },
   filtersContainer: {
     flexDirection: "row",
@@ -311,4 +323,3 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
 });
-

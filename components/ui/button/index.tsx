@@ -66,7 +66,7 @@ const buttonTextStyle = tva({
     },
     variant: {
       solid: '',
-      outline: '',
+      outline: 'text-primary-600',
       link: 'underline',
     },
     size: {
