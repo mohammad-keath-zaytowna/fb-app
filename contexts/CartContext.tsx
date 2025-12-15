@@ -2,23 +2,19 @@
 import { CartItem, CartState } from "@/types";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, {
-  createContext,
-  ReactNode,
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
+    createContext,
+    ReactNode,
+    useCallback,
+    useContext,
+    useEffect,
+    useState,
 } from "react";
 
 interface CartContextType extends CartState {
-  addToCart: (item: Omit<CartItem, "quantity">, quantity?: number) => void;
+  addToCart: (item: CartItem) => void;
   removeFromCart: (id: string, size: string, color: string) => void;
   clearCart: () => void;
-  isItemInCart: (
-    id: string
-  ) =>
-    | { quantity: number; id: string; size: string; color: string }
-    | undefined;
+  isItemInCart: (id: string) => CartItem | undefined;
   updateQuantity: (
     id: string,
     size: string,
@@ -80,13 +76,10 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   };
 
   const isItemInCart = (id: string) => {
-    return cartState.items.find((i) => i.id === id)?.[0];
+    return cartState.items.find((i) => i.id === id);
   };
 
-  const addToCart = (
-    item: Omit<CartItem, "quantity">,
-    quantity: number = 1
-  ) => {
+  const addToCart = (item: CartItem) => {
     setCartState((prev) => {
       const existingIndex = prev.items.findIndex(
         (i) =>
@@ -97,10 +90,12 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
 
       if (existingIndex !== -1) {
         updated = prev.items.map((i, idx) =>
-          idx === existingIndex ? { ...i, quantity: i.quantity + quantity } : i
+          idx === existingIndex
+            ? { ...i, quantity: i.quantity + item.quantity }
+            : i
         );
       } else {
-        updated = [...prev.items, { ...item, quantity }];
+        updated = [...prev.items, { ...item }];
       }
 
       // persist side‑effect

@@ -78,7 +78,7 @@ export default function ProductsScreen() {
           <Text style={styles.productName} numberOfLines={1}>
             {item.name}
           </Text>
-          <Text style={styles.productPrice}>${item.price.toFixed(2)}</Text>
+          <Text style={styles.productPrice}>JOD {item.price.toFixed(2)}</Text>
           <Text
             style={[
               styles.productStatus,
@@ -90,27 +90,12 @@ export default function ProductsScreen() {
               : item.status || "New Arrival"}
           </Text>
         </View>
-        <Pressable
-          style={styles.addButton}
-          onPress={(e) => {
-            e.stopPropagation();
-            router.push({
-              pathname: "/orders/new",
-              params: {
-                productId: item._id,
-                quantity: "1",
-              },
-            });
-          }}
-        >
-          <Plus size={20} color="#3B82F6" />
-        </Pressable>
       </Pressable>
     );
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
+    <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Products</Text>

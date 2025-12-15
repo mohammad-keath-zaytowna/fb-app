@@ -21,20 +21,30 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as z from "zod";
-
-interface CartItem extends OrderItem {
-  prod_id: Product;
-}
+import { useCartContext } from "@/contexts/CartContext";
 
 export default function NewOrderScreen() {
-  const { productId, size, color, quantity } = useLocalSearchParams<{
+  const {
+    productId,
+    size,
+    color,
+    quantity,
+    shipping: shippingParam,
+  } = useLocalSearchParams<{
     productId?: string;
     size?: string;
     color?: string;
     quantity?: string;
+    shipping?: string;
   }>();
 
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const {
+    items: cartItems,
+    addToCart,
+    clearCart,
+    updateQuantity,
+    removeFromCart,
+  } = useCartContext();
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingProduct, setIsLoadingProduct] = useState(false);
 
@@ -66,15 +76,15 @@ export default function NewOrderScreen() {
       const product = await getProductById(productId);
       const qty = quantity ? parseInt(quantity, 10) : 1;
 
-      setCartItems([
-        {
-          prod_id: product,
-          count: qty,
-          size: size,
-          color: color,
-          price: product.price,
-        },
-      ]);
+      addToCart({
+        id: product._id,
+        name: product.name,
+        image: product.image,
+        size: size || "",
+        color: color || "",
+        price: product.price,
+        quantity: qty,
+      });
     } catch (error) {
       console.error("Failed to load product:", error);
       Alert.alert("Error", "Failed to load product");
@@ -84,7 +94,7 @@ export default function NewOrderScreen() {
   };
 
   const calculateSubtotal = () => {
-    return cartItems.reduce((sum, item) => sum + item.price * item.count, 0);
+    return cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
   };
 
   const calculateTotal = () => {
@@ -94,20 +104,18 @@ export default function NewOrderScreen() {
   };
 
   const updateItemQuantity = (index: number, change: number) => {
-    setCartItems((items) => {
-      const newItems = [...items];
-      const newQuantity = newItems[index].count + change;
-      if (newQuantity <= 0) {
-        newItems.splice(index, 1);
-      } else {
-        newItems[index].count = newQuantity;
-      }
-      return newItems;
-    });
+    const item = cartItems[index];
+    const newQuantity = item.quantity + change;
+    if (newQuantity <= 0) {
+      removeFromCart(item.id, item.size, item.color);
+    } else {
+      updateQuantity(item.id, item.size, item.color, newQuantity);
+    }
   };
 
   const removeItem = (index: number) => {
-    setCartItems((items) => items.filter((_, i) => i !== index));
+    const item = cartItems[index];
+    removeFromCart(item.id, item.size, item.color);
   };
 
   const handleSubmit = async (data: z.infer<typeof orderFormSchema>) => {
@@ -120,9 +128,8 @@ export default function NewOrderScreen() {
     try {
       const orderData = {
         items: cartItems.map((item) => ({
-          prod_id:
-            typeof item.prod_id === "object" ? item.prod_id._id : item.prod_id,
-          count: item.count,
+          prod_id: item.id,
+          count: item.quantity,
           size: item.size,
           color: item.color,
           price: item.price,
@@ -138,6 +145,7 @@ export default function NewOrderScreen() {
       };
 
       const order = await createOrder(orderData);
+      clearCart();
       router.replace(`/orders/${order._id}`);
     } catch (error: any) {
       Alert.alert("Error", error.message || "Failed to create order");
@@ -176,25 +184,24 @@ export default function NewOrderScreen() {
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Order Items</Text>
               {cartItems.map((item, index) => {
-                const product =
-                  typeof item.prod_id === "object" ? item.prod_id : null;
-                if (!product) return null;
-
-                const imageUri = product.image?.startsWith("http")
-                  ? product.image
-                  : `${API_BASE_URL.replace("/api", "")}${product.image}`;
+                const imageUri = item.image?.startsWith("http")
+                  ? item.image
+                  : `${API_BASE_URL.replace("/api", "")}${item.image}`;
 
                 return (
-                  <View key={index} style={styles.cartItem}>
+                  <View
+                    key={`${item.id}-${item.size}-${item.color}`}
+                    style={styles.cartItem}
+                  >
                     <Image
                       source={{ uri: imageUri }}
                       style={styles.itemImage}
                       contentFit="cover"
                     />
                     <View style={styles.itemDetails}>
-                      <Text style={styles.itemName}>{product.name}</Text>
+                      <Text style={styles.itemName}>{item.name}</Text>
                       <Text style={styles.itemPrice}>
-                        ${item.price.toFixed(2)}
+                        JOD {item.price.toFixed(2)}
                       </Text>
                       {(item.size || item.color) && (
                         <Text style={styles.itemVariant}>
@@ -210,7 +217,7 @@ export default function NewOrderScreen() {
                         >
                           <Minus size={16} color="#6B7280" />
                         </Pressable>
-                        <Text style={styles.quantityText}>{item.count}</Text>
+                        <Text style={styles.quantityText}>{item.quantity}</Text>
                         <Pressable
                           style={styles.quantityButton}
                           onPress={() => updateItemQuantity(index, 1)}
@@ -219,7 +226,7 @@ export default function NewOrderScreen() {
                         </Pressable>
                       </View>
                       <Text style={styles.itemTotal}>
-                        ${(item.price * item.count).toFixed(2)}
+                        JOD {(item.price * item.quantity).toFixed(2)}
                       </Text>
                       <Pressable
                         style={styles.removeButton}
@@ -298,7 +305,7 @@ export default function NewOrderScreen() {
               <Text style={styles.sectionTitle}>Shipping & Notes</Text>
 
               <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Shipping Cost ($) *</Text>
+                <Text style={styles.inputLabel}>Shipping Cost (JOD) *</Text>
                 <TextInput
                   style={styles.input}
                   placeholder="0.00"
@@ -359,19 +366,19 @@ export default function NewOrderScreen() {
               <View style={styles.summaryRow}>
                 <Text style={styles.summaryLabel}>Subtotal</Text>
                 <Text style={styles.summaryValue}>
-                  ${calculateSubtotal().toFixed(2)}
+                  JOD {calculateSubtotal().toFixed(2)}
                 </Text>
               </View>
               <View style={styles.summaryRow}>
                 <Text style={styles.summaryLabel}>Shipping</Text>
                 <Text style={styles.summaryValue}>
-                  ${(form.watch("shipping") || 0).toFixed(2)}
+                  JOD {(form.watch("shipping") || 0).toFixed(2)}
                 </Text>
               </View>
               <View style={[styles.summaryRow, styles.totalRow]}>
                 <Text style={styles.totalLabel}>Total</Text>
                 <Text style={styles.totalValue}>
-                  ${calculateTotal().toFixed(2)}
+                  JOD {calculateTotal().toFixed(2)}
                 </Text>
               </View>
             </View>

@@ -1,12 +1,15 @@
-import { Tabs } from 'expo-router';
-import React from 'react';
 import { HapticTab } from '@/components/haptic-tab';
 import { Colors } from '@/constants/theme';
+import { useCartContext } from '@/contexts/CartContext';
 import { useColorScheme } from '@/hooks/use-color-scheme';
-import { User, ShoppingBag, Plus, Package, List } from 'lucide-react-native';
+import { Tabs } from 'expo-router';
+import { List, Package, Plus, ShoppingBag, User } from 'lucide-react-native';
+import React from 'react';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+  const { getCartCount } = useCartContext();
+  const count = getCartCount();
 
   return (
     <Tabs
@@ -27,6 +30,7 @@ export default function TabLayout() {
         options={{
           title: 'Cart',
           tabBarIcon: ({ color }) => <ShoppingBag size={24} color={color} />,
+          tabBarBadge: count > 0 ? count : undefined,
         }}
       />
       <Tabs.Screen

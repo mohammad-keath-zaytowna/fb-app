@@ -69,7 +69,7 @@ export default function OrdersScreen() {
       </View>
       <View style={styles.orderInfo}>
         <Text style={styles.orderNumber}>Order #{item._id.slice(-6)}</Text>
-        <Text style={styles.orderPrice}>${(item.total || item.totalAmount || 0).toFixed(2)}</Text>
+        <Text style={styles.orderPrice}>JOD {(item.total || item.totalAmount || 0).toFixed(2)}</Text>
         <Text style={styles.orderDate}>{formatDate(item.createdAt)}</Text>
       </View>
       <View
@@ -97,7 +97,7 @@ export default function OrdersScreen() {
   );
 
   return (
-    <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
+    <SafeAreaView style={styles.container} edges={['top']}>
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>My Orders</Text>

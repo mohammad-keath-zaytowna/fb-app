@@ -84,10 +84,10 @@ export type ApiError = {
 export interface CartItem {
   id: string; // product id
   name: string;
-  price: number;
-  image?: string;
+  image: string;
   size: string;
   color: string;
+  price: number;
   quantity: number;
 }
 

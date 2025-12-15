@@ -6,7 +6,14 @@ import { Image } from "expo-image";
 import { router, useLocalSearchParams } from "expo-router";
 import { ArrowLeft, MoreVertical } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import {
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function OrderDetailScreen() {
@@ -38,8 +45,10 @@ export default function OrderDetailScreen() {
 
   if (isLoading || !order) {
     return (
-      <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
-        <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+      <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
+        <View
+          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+        >
           <Text>Loading...</Text>
         </View>
       </SafeAreaView>
@@ -61,141 +70,104 @@ export default function OrderDetailScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
+    <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
       <ScrollView>
         {/* Header */}
         <View style={styles.header}>
-        <Pressable onPress={() => router.back()}>
-          <ArrowLeft size={24} color="#111827" />
-        </Pressable>
-        <Text style={styles.headerTitle}>Order Details</Text>
-        <Pressable>
-          <MoreVertical size={24} color="#111827" />
-        </Pressable>
-      </View>
+          <Pressable onPress={() => router.back()}>
+            <ArrowLeft size={24} color="#111827" />
+          </Pressable>
+          <Text style={styles.headerTitle}>Order Details</Text>
+          <Pressable>
+            <MoreVertical size={24} color="#111827" />
+          </Pressable>
+        </View>
 
-      <View style={styles.content}>
-        {/* Order ID and Status */}
-        <View style={styles.orderHeader}>
-          <Text style={styles.orderId}>Order ID: #{order._id.slice(-5)}</Text>
-          <View
-            style={[
-              styles.statusBadge,
-              { backgroundColor: `${getStatusColor(order.status)}20` },
-            ]}
-          >
-            <Text
+        <View style={styles.content}>
+          {/* Order ID and Status */}
+          <View style={styles.orderHeader}>
+            <Text style={styles.orderId}>Order ID: #{order._id.slice(-5)}</Text>
+            <View
               style={[
-                styles.statusText,
-                { color: getStatusColor(order.status) },
+                styles.statusBadge,
+                { backgroundColor: `${getStatusColor(order.status)}20` },
               ]}
             >
-              {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-            </Text>
+              <Text
+                style={[
+                  styles.statusText,
+                  { color: getStatusColor(order.status) },
+                ]}
+              >
+                {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+              </Text>
+            </View>
           </View>
-        </View>
 
-        {/* Items Ordered */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Items Ordered</Text>
-          {order.items.map((item, index) => {
-            const product =
-              typeof item.prod_id === "object" ? item.prod_id : null;
-            return (
-              <View key={index} style={styles.orderItem}>
-                <Image
-                  source={{
-                    uri: product?.image
-                      ? product.image.startsWith('http')
-                        ? product.image
-                        : `${API_BASE_URL.replace('/api', '')}${product.image}`
-                      : "https://via.placeholder.com/80",
-                  }}
-                  style={styles.itemImage}
-                  contentFit="cover"
-                />
-                <View style={styles.itemInfo}>
-                  <Text style={styles.itemName} numberOfLines={1}>
-                    {product?.name || "Product"}
-                  </Text>
-                  <Text style={styles.itemPrice}>
-                    ${item.price.toFixed(2)}
+          {/* Items Ordered */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Items Ordered</Text>
+            {order.items.map((item, index) => {
+              const product =
+                typeof item.prod_id === "object" ? item.prod_id : null;
+              return (
+                <View key={index} style={styles.orderItem}>
+                  <Image
+                    source={{
+                      uri: product?.image
+                        ? product.image.startsWith("http")
+                          ? product.image
+                          : `${API_BASE_URL.replace("/api", "")}${
+                              product.image
+                            }`
+                        : "https://via.placeholder.com/80",
+                    }}
+                    style={styles.itemImage}
+                    contentFit="cover"
+                  />
+                  <View style={styles.itemInfo}>
+                    <Text style={styles.itemName} numberOfLines={1}>
+                      {product?.name || "Product"}
+                    </Text>
+                    <Text style={styles.itemPrice}>
+                      JOD {item.price.toFixed(2)}
+                    </Text>
+                  </View>
+                  <Text style={styles.itemQuantity}>x{item.count}</Text>
+                  <Text style={styles.itemTotal}>
+                    JOD {(item.price * item.count).toFixed(2)}
                   </Text>
                 </View>
-                <Text style={styles.itemQuantity}>x{item.count}</Text>
-                <Text style={styles.itemTotal}>
-                  ${(item.price * item.count).toFixed(2)}
+              );
+            })}
+
+            {/* Price Summary */}
+            <View style={styles.priceSummary}>
+              <View style={styles.priceRow}>
+                <Text style={styles.priceLabel}>Subtotal</Text>
+                <Text style={styles.priceValue}>
+                  JOD{" "}
+                  {(
+                    (order.total || order.totalAmount || 0) -
+                    (order.shipping || 0)
+                  ).toFixed(2)}
                 </Text>
               </View>
-            );
-          })}
-
-          {/* Price Summary */}
-          <View style={styles.priceSummary}>
-            <View style={styles.priceRow}>
-              <Text style={styles.priceLabel}>Subtotal</Text>
-              <Text style={styles.priceValue}>
-                ${((order.total || order.totalAmount || 0) - (order.shipping || 0)).toFixed(2)}
-              </Text>
-            </View>
-            <View style={styles.priceRow}>
-              <Text style={styles.priceLabel}>Shipping</Text>
-              <Text style={styles.priceValue}>
-                ${(order.shipping || 0).toFixed(2)}
-              </Text>
-            </View>
-            <View style={[styles.priceRow, styles.totalRow]}>
-              <Text style={styles.totalLabel}>Total</Text>
-              <Text style={styles.totalValue}>
-                ${(order.total || order.totalAmount || 0).toFixed(2)}
-              </Text>
+              <View style={styles.priceRow}>
+                <Text style={styles.priceLabel}>Shipping</Text>
+                <Text style={styles.priceValue}>
+                  JOD {(order.shipping || 0).toFixed(2)}
+                </Text>
+              </View>
+              <View style={[styles.priceRow, styles.totalRow]}>
+                <Text style={styles.totalLabel}>Total</Text>
+                <Text style={styles.totalValue}>
+                  JOD {(order.total || order.totalAmount || 0).toFixed(2)}
+                </Text>
+              </View>
             </View>
           </View>
         </View>
-
-        {/* Notes & Contact */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Notes & Contact</Text>
-
-          <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>User Notes</Text>
-            <TextInput
-              style={styles.textArea}
-              multiline
-              numberOfLines={4}
-              placeholder="e.g. Please wrap as a gift."
-              value={userNotes}
-              onChangeText={setUserNotes}
-              textAlignVertical="top"
-            />
-          </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>Facebook Profile</Text>
-            <View style={styles.facebookInput}>
-              <Text style={styles.facebookIcon}>f</Text>
-              <TextInput
-                style={styles.facebookInputField}
-                placeholder="profile.link"
-                value={facebookProfile}
-                onChangeText={setFacebookProfile}
-              />
-            </View>
-          </View>
-        </View>
-
-        {/* Confirm Order Button */}
-        <Button
-          size="lg"
-          className="w-full mt-6"
-          onPress={() => {
-            // Handle confirm order
-            router.back();
-          }}
-        >
-          Confirm Order
-        </Button>
-      </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -367,4 +339,3 @@ const styles = StyleSheet.create({
     color: "#111827",
   },
 });
-

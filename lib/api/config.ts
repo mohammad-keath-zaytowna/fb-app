@@ -4,7 +4,7 @@ import axios, { AxiosInstance, AxiosResponse } from "axios";
 
 // API Configuration
 export const API_BASE_URL =
-  process.env.EXPO_PUBLIC_BACKEND_URL || "http://10.33.21.234:5000/api";
+  process.env.EXPO_PUBLIC_BACKEND_URL || "https://server.munjiz-jo.online/api";
 
 // Create axios instance
 const apiClient: AxiosInstance = axios.create({

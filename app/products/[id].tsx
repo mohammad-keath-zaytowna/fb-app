@@ -5,8 +5,8 @@ import { getProductById } from "@/lib/api/products";
 import { Product } from "@/types";
 import { Image } from "expo-image";
 import { router, useLocalSearchParams } from "expo-router";
-import { ArrowLeft } from "lucide-react-native";
-import React, { useEffect, useState } from "react";
+import { ArrowLeft, Minus, Plus } from "lucide-react-native";
+import React, { useCallback, useEffect, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -16,17 +16,16 @@ export default function ProductDetailScreen() {
   const [selectedSize, setSelectedSize] = useState<string>("M");
   const [selectedColor, setSelectedColor] = useState<string>("black");
   const [isLoading, setIsLoading] = useState(true);
-  const { isItemInCart, addToCart } = useCartContext();
-  const inCart = isItemInCart(id);
-  console.log("inCart", inCart);
+  const { addToCart, items, updateQuantity } = useCartContext();
 
-  useEffect(() => {
-    if (id) {
-      loadProduct();
-    }
-  }, [id]);
+  const cartItem = items.find(
+    (item) =>
+      item.id === id &&
+      item.size === selectedSize &&
+      item.color === selectedColor
+  );
 
-  const loadProduct = async () => {
+  const loadProduct = useCallback(async () => {
     setIsLoading(true);
     try {
       const data = await getProductById(id);
@@ -36,7 +35,13 @@ export default function ProductDetailScreen() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [id]);
+
+  useEffect(() => {
+    if (id) {
+      loadProduct();
+    }
+  }, [id, loadProduct]);
 
   if (isLoading || !product) {
     return (
@@ -80,7 +85,7 @@ export default function ProductDetailScreen() {
         <View style={styles.infoContainer}>
           <View style={styles.titleRow}>
             <Text style={styles.productName}>{product.name}</Text>
-            <Text style={styles.productPrice}>${product.price.toFixed(2)}</Text>
+            <Text style={styles.productPrice}>JOD {product.price.toFixed(2)}</Text>
           </View>
           <Text style={styles.productDescription}>
             {product.description ||
@@ -134,10 +139,56 @@ export default function ProductDetailScreen() {
             </View>
           </View>
 
-          {/* Add to Order Button */}
-          <Button size="lg" className="w-full mt-6" onPress={() => {}}>
-            Add to Order
-          </Button>
+          {/* Add to Order Button / Quantity Controls */}
+          {cartItem ? (
+            <View style={styles.quantityContainer}>
+              <Pressable
+                style={styles.quantityButton}
+                onPress={() =>
+                  updateQuantity(
+                    cartItem.id,
+                    cartItem.size,
+                    cartItem.color,
+                    cartItem.quantity - 1
+                  )
+                }
+              >
+                <Minus size={24} color="#111827" />
+              </Pressable>
+              <Text style={styles.quantityText}>{cartItem.quantity}</Text>
+              <Pressable
+                style={styles.quantityButton}
+                onPress={() =>
+                  updateQuantity(
+                    cartItem.id,
+                    cartItem.size,
+                    cartItem.color,
+                    cartItem.quantity + 1
+                  )
+                }
+              >
+                <Plus size={24} color="#111827" />
+              </Pressable>
+            </View>
+          ) : (
+            <Button
+              size="lg"
+              className="w-full mt-6"
+              onPress={() =>
+                addToCart({
+                  id: product._id,
+                  name: product.name,
+                  image: product.image,
+                  size: selectedSize,
+                  color: selectedColor,
+                  price: product.price,
+                  quantity: 1,
+                })
+              }
+            >
+              Add to Order
+            </Button>
+          )}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -260,5 +311,29 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     borderWidth: 1,
     borderColor: "#D1D5DB",
+  },
+  quantityContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginTop: 24,
+    backgroundColor: "#F3F4F6",
+    borderRadius: 8,
+    padding: 8,
+  },
+  quantityButton: {
+    width: 40,
+    height: 40,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#FFFFFF",
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+  },
+  quantityText: {
+    fontSize: 20,
+    fontWeight: "600",
+    color: "#111827",
   },
 });
