@@ -8,12 +8,14 @@ import * as z from "zod";
 import { resetPasswordformSchema } from "@/lib/forms/auth";
 import { resetPasswordApiMethod } from "@/lib/api/auth";
 import RHFInput from "@/components/react-hook-form/rhf-input";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react-native";
 
 export default function ResetPasswordScreen() {
   const { email, otp } = useLocalSearchParams<{ email: string; otp: string }>();
   const [isLoading, setIsLoading] = useState(false);
+  const { t } = useTranslation();
 
   const form = useForm<z.infer<typeof resetPasswordformSchema>>({
     resolver: zodResolver(resetPasswordformSchema),
@@ -54,13 +56,13 @@ export default function ResetPasswordScreen() {
           <Pressable onPress={() => router.back()}>
             <ArrowLeft size={24} color="#111827" />
           </Pressable>
-          <Text style={styles.headerTitle}>Reset Password</Text>
+          <Text style={styles.headerTitle}>{t('resetPasswordTitle')}</Text>
           <View style={{ width: 24 }} />
         </View>
 
         {/* Description */}
         <Text style={styles.description}>
-          Create a new, strong password for your account.
+          {t('resetPasswordDescription')}
         </Text>
 
         {/* Form */}
@@ -68,15 +70,15 @@ export default function ResetPasswordScreen() {
           <View style={styles.form}>
             <RHFInput
               name="password"
-              label="New Password"
-              placeholder="Enter your new password"
+              label={t('newPassword')}
+              placeholder={t('newPasswordPlaceholder')}
               type="password"
               showPasswordToggle
-              helperText="Must be at least 8 characters."
+              helperText={t('passwordHelperText')}
             />
 
             <View style={styles.passwordStrengthContainer}>
-              <Text style={styles.passwordStrengthLabel}>Weak</Text>
+              <Text style={styles.passwordStrengthLabel}>{t('passwordStrengthWeak')}</Text>
               <View style={styles.passwordStrengthBar}>
                 <View style={styles.passwordStrengthBarFill} />
                 <View style={styles.passwordStrengthBarEmpty} />
@@ -88,8 +90,8 @@ export default function ResetPasswordScreen() {
             <View style={{ marginTop: 24 }}>
               <RHFInput
                 name="confirmPassword"
-                label="Confirm New Password"
-                placeholder="Re-enter your new password"
+                label={t('confirmNewPassword')}
+                placeholder={t('confirmNewPasswordPlaceholder')}
                 type="password"
                 showPasswordToggle
               />
@@ -102,7 +104,7 @@ export default function ResetPasswordScreen() {
               size="lg"
               className="w-full mt-8"
             >
-              Save new password
+              {t('saveNewPassword')}
             </Button>
           </View>
         </FormProvider>

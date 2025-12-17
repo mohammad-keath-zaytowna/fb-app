@@ -8,6 +8,7 @@ import * as z from "zod";
 import { loginformSchema } from "@/lib/forms/auth";
 import { loginApiMethod } from "@/lib/api/auth";
 import { useAuthContext } from "@/contexts/AuthContext";
+import { useTranslation } from "react-i18next";
 import RHFInput from "@/components/react-hook-form/rhf-input";
 import { Button } from "@/components/ui/button";
 import { ActivityIndicator } from "react-native";
@@ -15,6 +16,7 @@ import { ActivityIndicator } from "react-native";
 export default function LoginScreen() {
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuthContext();
+  const { t } = useTranslation();
 
   const form = useForm<z.infer<typeof loginformSchema>>({
     resolver: zodResolver(loginformSchema),
@@ -63,24 +65,24 @@ export default function LoginScreen() {
           </View>
 
           {/* Welcome Text */}
-          <Text style={styles.title}>Welcome back!</Text>
-          <Text style={styles.subtitle}>Log in to your account to continue.</Text>
+          <Text style={styles.title}>{t('welcomeBack')}</Text>
+          <Text style={styles.subtitle}>{t('loginSubtitle')}</Text>
 
           {/* Form */}
           <FormProvider {...form}>
             <View style={styles.form}>
               <RHFInput
                 name="email"
-                label="Email or Phone"
-                placeholder="Enter your email or phone"
+                label={t('emailOrPhone')}
+                placeholder={t('emailOrPhonePlaceholder')}
                 type="email"
               />
 
               <View style={styles.passwordContainer}>
                 <RHFInput
                   name="password"
-                  label="Password"
-                  placeholder="Enter your password"
+                  label={t('password')}
+                  placeholder={t('passwordPlaceholder')}
                   type="password"
                   showPasswordToggle
                 />
@@ -88,7 +90,7 @@ export default function LoginScreen() {
                   onPress={() => router.push("/(auth)/forgot-password")}
                   style={styles.forgotPasswordLink}
                 >
-                  <Text style={styles.forgotPasswordText}>Forgot password?</Text>
+                  <Text style={styles.forgotPasswordText}>{t('forgotPassword')}</Text>
                 </Pressable>
               </View>
 
@@ -99,7 +101,7 @@ export default function LoginScreen() {
                 size="lg"
                 className="w-full mt-4"
               >
-                {isLoading ? "Logging In..." : "Login"}
+                {isLoading ? t('loggingIn') : t('login')}
               </Button>
             </View>
           </FormProvider>

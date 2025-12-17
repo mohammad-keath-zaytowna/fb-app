@@ -22,6 +22,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as z from "zod";
 import { useCartContext } from "@/contexts/CartContext";
+import { useTranslation } from "react-i18next";
 
 export default function NewOrderScreen() {
   const {
@@ -47,6 +48,7 @@ export default function NewOrderScreen() {
   } = useCartContext();
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingProduct, setIsLoadingProduct] = useState(false);
+  const { t } = useTranslation();
 
   const form = useForm<z.infer<typeof orderFormSchema>>({
     resolver: zodResolver(orderFormSchema),
@@ -87,7 +89,7 @@ export default function NewOrderScreen() {
       });
     } catch (error) {
       console.error("Failed to load product:", error);
-      Alert.alert("Error", "Failed to load product");
+      Alert.alert(t('error'), t('failedToLoadProduct'));
     } finally {
       setIsLoadingProduct(false);
     }
@@ -120,7 +122,7 @@ export default function NewOrderScreen() {
 
   const handleSubmit = async (data: z.infer<typeof orderFormSchema>) => {
     if (cartItems.length === 0) {
-      Alert.alert("Error", "Please add at least one product to the order");
+      Alert.alert(t('error'), t('addAtLeastOneProduct'));
       return;
     }
 
@@ -148,7 +150,7 @@ export default function NewOrderScreen() {
       clearCart();
       router.replace(`/orders/${order._id}`);
     } catch (error: any) {
-      Alert.alert("Error", error.message || "Failed to create order");
+      Alert.alert(t('error'), error.message || t('failedToCreateOrder'));
     } finally {
       setIsLoading(false);
     }
@@ -160,7 +162,7 @@ export default function NewOrderScreen() {
         <View
           style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
         >
-          <Text>Loading product...</Text>
+          <Text>{t('loadingProduct')}</Text>
         </View>
       </SafeAreaView>
     );
@@ -174,7 +176,7 @@ export default function NewOrderScreen() {
           <Pressable onPress={() => router.back()}>
             <ArrowLeft size={24} color="#111827" />
           </Pressable>
-          <Text style={styles.headerTitle}>New Order</Text>
+          <Text style={styles.headerTitle}>{t('newOrder')}</Text>
           <View style={{ width: 24 }} />
         </View>
 
@@ -182,7 +184,7 @@ export default function NewOrderScreen() {
           {/* Cart Items */}
           {cartItems.length > 0 ? (
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Order Items</Text>
+              <Text style={styles.sectionTitle}>{t('orderItems')}</Text>
               {cartItems.map((item, index) => {
                 const imageUri = item.image?.startsWith("http")
                   ? item.image
@@ -244,18 +246,18 @@ export default function NewOrderScreen() {
                 className="mt-4"
                 onPress={() => router.push("/products")}
               >
-                Add More Products
+                {t('addMoreProducts')}
               </Button>
             </View>
           ) : (
             <View style={styles.emptyCart}>
-              <Text style={styles.emptyCartText}>No items in cart</Text>
+              <Text style={styles.emptyCartText}>{t('noItemsInCart')}</Text>
               <Button
                 size="md"
                 className="mt-4"
                 onPress={() => router.push("/products")}
               >
-                Browse Products
+                {t('browseProducts')}
               </Button>
             </View>
           )}
@@ -263,23 +265,23 @@ export default function NewOrderScreen() {
           {/* User Information */}
           <FormProvider {...form}>
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>User Information</Text>
+              <Text style={styles.sectionTitle}>{t('userInformation')}</Text>
 
               <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>User Name *</Text>
+                <Text style={styles.inputLabel}>{t('userName')} *</Text>
                 <TextInput
                   style={styles.input}
-                  placeholder="Enter user name"
+                  placeholder={t('enterUserName')}
                   value={form.watch("userName")}
                   onChangeText={(text) => form.setValue("userName", text)}
                 />
               </View>
 
               <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Phone Number *</Text>
+                <Text style={styles.inputLabel}>{t('phoneNumber')} *</Text>
                 <TextInput
                   style={styles.input}
-                  placeholder="Enter phone number"
+                  placeholder={t('enterPhoneNumber')}
                   keyboardType="phone-pad"
                   value={form.watch("phoneNumber")}
                   onChangeText={(text) => form.setValue("phoneNumber", text)}
@@ -287,12 +289,12 @@ export default function NewOrderScreen() {
               </View>
 
               <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Address *</Text>
+                <Text style={styles.inputLabel}>{t('address')} *</Text>
                 <TextInput
                   style={[styles.input, styles.textArea]}
                   multiline
                   numberOfLines={3}
-                  placeholder="Enter delivery address"
+                  placeholder={t('enterDeliveryAddress')}
                   value={form.watch("address")}
                   onChangeText={(text) => form.setValue("address", text)}
                   textAlignVertical="top"
@@ -302,10 +304,10 @@ export default function NewOrderScreen() {
 
             {/* Shipping & Notes */}
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Shipping & Notes</Text>
+              <Text style={styles.sectionTitle}>{t('shippingAndNotes')}</Text>
 
               <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Shipping Cost (JOD) *</Text>
+                <Text style={styles.inputLabel}>{t('shippingCost')} *</Text>
                 <TextInput
                   style={styles.input}
                   placeholder="0.00"
@@ -319,12 +321,12 @@ export default function NewOrderScreen() {
               </View>
 
               <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Notes</Text>
+                <Text style={styles.inputLabel}>{t('notes')}</Text>
                 <TextInput
                   style={[styles.input, styles.textArea]}
                   multiline
                   numberOfLines={3}
-                  placeholder="Internal notes (optional)"
+                  placeholder={t('internalNotes')}
                   value={form.watch("notes")}
                   onChangeText={(text) => form.setValue("notes", text)}
                   textAlignVertical="top"
@@ -332,12 +334,12 @@ export default function NewOrderScreen() {
               </View>
 
               <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>User Notes</Text>
+                <Text style={styles.inputLabel}>{t('userNotes')}</Text>
                 <TextInput
                   style={[styles.input, styles.textArea]}
                   multiline
                   numberOfLines={3}
-                  placeholder="e.g. Please wrap as a gift."
+                  placeholder={t('userNotesPlaceholder')}
                   value={form.watch("userNotes")}
                   onChangeText={(text) => form.setValue("userNotes", text)}
                   textAlignVertical="top"
@@ -345,12 +347,12 @@ export default function NewOrderScreen() {
               </View>
 
               <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Facebook Profile</Text>
+                <Text style={styles.inputLabel}>{t('facebookProfile')}</Text>
                 <View style={styles.facebookInput}>
                   <Text style={styles.facebookIcon}>f</Text>
                   <TextInput
                     style={styles.facebookInputField}
-                    placeholder="profile.link"
+                    placeholder={t('facebookPlaceholder')}
                     value={form.watch("facebookProfile")}
                     onChangeText={(text) =>
                       form.setValue("facebookProfile", text)
@@ -362,21 +364,21 @@ export default function NewOrderScreen() {
 
             {/* Order Summary */}
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Order Summary</Text>
+              <Text style={styles.sectionTitle}>{t('orderSummary')}</Text>
               <View style={styles.summaryRow}>
-                <Text style={styles.summaryLabel}>Subtotal</Text>
+                <Text style={styles.summaryLabel}>{t('subtotal')}</Text>
                 <Text style={styles.summaryValue}>
                   JOD {calculateSubtotal().toFixed(2)}
                 </Text>
               </View>
               <View style={styles.summaryRow}>
-                <Text style={styles.summaryLabel}>Shipping</Text>
+                <Text style={styles.summaryLabel}>{t('shipping')}</Text>
                 <Text style={styles.summaryValue}>
                   JOD {(form.watch("shipping") || 0).toFixed(2)}
                 </Text>
               </View>
               <View style={[styles.summaryRow, styles.totalRow]}>
-                <Text style={styles.totalLabel}>Total</Text>
+                <Text style={styles.totalLabel}>{t('total')}</Text>
                 <Text style={styles.totalValue}>
                   JOD {calculateTotal().toFixed(2)}
                 </Text>
@@ -391,7 +393,7 @@ export default function NewOrderScreen() {
               size="lg"
               className="w-full mt-6"
             >
-              Create Order
+              {t('createOrder')}
             </Button>
           </FormProvider>
         </View>

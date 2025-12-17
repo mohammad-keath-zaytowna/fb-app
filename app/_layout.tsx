@@ -16,11 +16,8 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { CartProvider } from "@/contexts/CartContext";
 import "@/global.css";
 
-// Force LTR layout on app initialization
-if (I18nManager.isRTL || I18nManager.allowRTL) {
-  I18nManager.forceRTL(false);
-  I18nManager.allowRTL(false);
-}
+import "@/lib/i18n";
+import i18n from "@/lib/i18n";
 
 export const unstable_settings = {
   initialRouteName: "(auth)",
@@ -29,10 +26,15 @@ export const unstable_settings = {
 export default function RootLayout() {
   const colorScheme = useColorScheme();
 
-  // Ensure LTR on component mount
+  // Set RTL based on current language
   useEffect(() => {
-    I18nManager.forceRTL(false);
-    I18nManager.allowRTL(false);
+    const currentLanguage = i18n.language;
+    const shouldBeRTL = currentLanguage === 'ar';
+    
+    if (I18nManager.isRTL !== shouldBeRTL) {
+      I18nManager.allowRTL(shouldBeRTL);
+      I18nManager.forceRTL(shouldBeRTL);
+    }
   }, []);
 
   return (

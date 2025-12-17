@@ -3,12 +3,14 @@ import { View, Text, ScrollView, Pressable, TextInput, StyleSheet } from "react-
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router, useLocalSearchParams } from "expo-router";
 import { ArrowLeft } from "lucide-react-native";
+import { useTranslation } from "react-i18next";
 
 export default function VerificationCodeScreen() {
   const { email } = useLocalSearchParams<{ email: string }>();
   const [code, setCode] = useState(["", "", "", "", "", ""]);
   const [timeLeft, setTimeLeft] = useState(30);
   const inputRefs = useRef<(TextInput | null)[]>([]);
+  const { t } = useTranslation();
 
   React.useEffect(() => {
     if (timeLeft > 0) {
@@ -66,8 +68,8 @@ export default function VerificationCodeScreen() {
         </View>
 
         {/* Title */}
-        <Text style={styles.title}>Enter verification code</Text>
-        <Text style={styles.description}>We sent a code to {email || "your email"}</Text>
+        <Text style={styles.title}>{t('enterVerificationCode')}</Text>
+        <Text style={styles.description}>{t('verificationCodeDescription', { email: email || 'your email' })}</Text>
 
         {/* Code Inputs */}
         <View style={styles.codeContainer}>
@@ -91,7 +93,7 @@ export default function VerificationCodeScreen() {
 
         {/* Resend Code */}
         <View style={styles.resendContainer}>
-          <Text style={styles.resendText}>Didn't receive the code? </Text>
+          <Text style={styles.resendText}>{t('didntReceiveCode')}</Text>
           <Pressable onPress={handleResend} disabled={timeLeft > 0}>
             <Text
               style={[
@@ -99,7 +101,7 @@ export default function VerificationCodeScreen() {
                 timeLeft > 0 && styles.resendLinkDisabled,
               ]}
             >
-              Resend code
+              {t('resendCode')}
             </Text>
           </Pressable>
           {timeLeft > 0 && (
@@ -129,7 +131,7 @@ export default function VerificationCodeScreen() {
               code.every(digit => digit !== "") && styles.verifyButtonTextActive,
             ]}
           >
-            Verify
+            {t('verify')}
           </Text>
         </Pressable>
       </View>

@@ -8,18 +8,22 @@ import React, { useEffect, useState } from "react";
 import {
   FlatList,
   Pressable,
+  RefreshControl,
   StyleSheet,
   Text,
   TextInput,
   View,
 } from "react-native";
+import { useTranslation } from "react-i18next";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useDebounce } from "use-debounce";
 
 export default function ProductsScreen() {
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const { t } = useTranslation();
   // const [activeFilter, setActiveFilter] = useState<string | null>("new");
   const [searchDebounced] = useDebounce(searchQuery, 200);
 
@@ -41,6 +45,12 @@ export default function ProductsScreen() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await loadProducts();
+    setRefreshing(false);
   };
 
   const getStatusColor = (status?: string) => {
@@ -86,8 +96,14 @@ export default function ProductsScreen() {
             ]}
           >
             {item.status === "active"
-              ? "In Stock"
-              : item.status || "New Arrival"}
+              ? t('inStock')
+              : item.status === "Low Stock"
+              ? t('lowStock')
+              : item.status === "On Sale"
+              ? t('onSale')
+              : item.status === "Out of Stock"
+              ? t('outOfStock')
+              : item.status || t('newArrival')}
           </Text>
         </View>
       </Pressable>
@@ -98,7 +114,7 @@ export default function ProductsScreen() {
     <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Products</Text>
+        <Text style={styles.headerTitle}>{t('products')}</Text>
       </View>
 
       {/* Search Bar */}
@@ -106,7 +122,7 @@ export default function ProductsScreen() {
         <Search size={20} color="#9CA3AF" />
         <TextInput
           style={styles.searchInput}
-          placeholder="Search for products..."
+          placeholder={t('searchForProducts')}
           value={searchQuery}
           onChangeText={(text) => setSearchQuery(text)}
         />
@@ -158,7 +174,7 @@ export default function ProductsScreen() {
       {/* Products List */}
       {isLoading ? (
         <View style={styles.loadingContainer}>
-          <Text>Loading...</Text>
+          <Text>{t('loading')}</Text>
         </View>
       ) : (
         <FlatList
@@ -167,6 +183,9 @@ export default function ProductsScreen() {
           keyExtractor={(item) => item._id}
           contentContainerStyle={styles.productsList}
           showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} title={t('pullToRefresh')} tintColor="#3B82F6" />
+          }
         />
       )}
     </SafeAreaView>

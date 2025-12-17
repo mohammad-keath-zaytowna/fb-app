@@ -3,15 +3,40 @@ import { useAuthContext } from "@/contexts/AuthContext";
 import { router } from "expo-router";
 import { Mail, Package, User } from "lucide-react-native";
 import React from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { ScrollView, StyleSheet, Text, View, Pressable } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useTranslation } from "react-i18next";
+import { I18nManager } from "react-native";
+import * as Updates from "expo-updates";
 
 export default function ProfileScreen() {
   const { user, logout } = useAuthContext();
+  const { t, i18n } = useTranslation();
 
   const handleLogout = async () => {
     await logout();
     router.replace("/(auth)/login");
+  };
+
+  const changeLanguage = async (lang: string) => {
+    try {
+      await i18n.changeLanguage(lang);
+      const isRTL = lang === 'ar';
+      
+      // Check if RTL change is needed
+      if (I18nManager.isRTL !== isRTL) {
+        I18nManager.forceRTL(isRTL);
+        // Inform user to restart app for RTL changes
+        const { Alert } = require('react-native');
+        Alert.alert(
+          t('language'),
+          'Please restart the app to apply RTL changes.',
+          [{ text: t('ok') }]
+        );
+      }
+    } catch (error) {
+      console.error('Error changing language:', error);
+    }
   };
 
   return (
@@ -20,7 +45,7 @@ export default function ProfileScreen() {
         <View style={styles.content}>
           {/* Header */}
           <View style={styles.header}>
-            <Text style={styles.headerTitle}>Profile</Text>
+            <Text style={styles.headerTitle}>{t('profile')}</Text>
           </View>
 
           {/* User Info Card */}
@@ -42,14 +67,14 @@ export default function ProfileScreen() {
 
           {/* User Details */}
           <View style={styles.card}>
-            <Text style={styles.sectionTitle}>Account Information</Text>
+            <Text style={styles.sectionTitle}>{t('accountInformation')}</Text>
 
             <View style={styles.infoRow}>
               <View style={styles.infoIcon}>
                 <User size={20} color="#6B7280" />
               </View>
               <View style={styles.infoContent}>
-                <Text style={styles.infoLabel}>Name</Text>
+                <Text style={styles.infoLabel}>{t('name')}</Text>
                 <Text style={styles.infoValue}>{user?.name || "N/A"}</Text>
               </View>
             </View>
@@ -59,7 +84,7 @@ export default function ProfileScreen() {
                 <Mail size={20} color="#6B7280" />
               </View>
               <View style={styles.infoContent}>
-                <Text style={styles.infoLabel}>Email</Text>
+                <Text style={styles.infoLabel}>{t('email')}</Text>
                 <Text style={styles.infoValue}>{user?.email || "N/A"}</Text>
               </View>
             </View>
@@ -69,12 +94,50 @@ export default function ProfileScreen() {
                 <Package size={20} color="#6B7280" />
               </View>
               <View style={styles.infoContent}>
-                <Text style={styles.infoLabel}>Role</Text>
+                <Text style={styles.infoLabel}>{t('role')}</Text>
                 <Text style={styles.infoValue}>
-                  {(user?.role?.charAt(0).toUpperCase() || "") +
-                    (user?.role?.slice(1) || "") || "User"}
+                  {t(user?.role || 'user')}
                 </Text>
               </View>
+            </View>
+          </View>
+
+          {/* Language Switcher */}
+          <View style={styles.card}>
+            <Text style={styles.sectionTitle}>{t('language')}</Text>
+            <View style={styles.languageContainer}>
+              <Pressable
+                style={[
+                  styles.languageButton,
+                  i18n.language === 'en' && styles.languageButtonActive,
+                ]}
+                onPress={() => changeLanguage('en')}
+              >
+                <Text
+                  style={[
+                    styles.languageButtonText,
+                    i18n.language === 'en' && styles.languageButtonTextActive,
+                  ]}
+                >
+                  {t('english')}
+                </Text>
+              </Pressable>
+              <Pressable
+                style={[
+                  styles.languageButton,
+                  i18n.language === 'ar' && styles.languageButtonActive,
+                ]}
+                onPress={() => changeLanguage('ar')}
+              >
+                <Text
+                  style={[
+                    styles.languageButtonText,
+                    i18n.language === 'ar' && styles.languageButtonTextActive,
+                  ]}
+                >
+                  {t('arabic')}
+                </Text>
+              </Pressable>
             </View>
           </View>
 
@@ -86,7 +149,7 @@ export default function ProfileScreen() {
               className="w-full"
               onPress={handleLogout}
             >
-              Logout
+              {t('logout')}
             </Button>
           </View>
         </View>
@@ -195,5 +258,33 @@ const styles = StyleSheet.create({
   logoutButtonContainer: {
     width: "100%",
     marginTop: 24,
+  },
+  languageContainer: {
+    flexDirection: "row",
+    gap: 12,
+    width: "100%",
+  },
+  languageButton: {
+    flex: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#D1D5DB",
+    backgroundColor: "#FFFFFF",
+    alignItems: "center",
+  },
+  languageButtonActive: {
+    backgroundColor: "#DBEAFE",
+    borderColor: "#3B82F6",
+  },
+  languageButtonText: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: "#6B7280",
+  },
+  languageButtonTextActive: {
+    color: "#3B82F6",
+    fontWeight: "600",
   },
 });

@@ -8,20 +8,24 @@ import { ArrowLeft, MoreVertical } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
 import {
   Pressable,
+  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
   TextInput,
   View,
 } from "react-native";
+import { useTranslation } from "react-i18next";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function OrderDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const [order, setOrder] = useState<Order | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [userNotes, setUserNotes] = useState("");
   const [facebookProfile, setFacebookProfile] = useState("");
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (id) {
@@ -41,6 +45,12 @@ export default function OrderDetailScreen() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await loadOrder();
+    setRefreshing(false);
   };
 
   if (isLoading || !order) {
@@ -71,7 +81,11 @@ export default function OrderDetailScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
-      <ScrollView>
+      <ScrollView
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} title={t('pullToRefresh')} tintColor="#3B82F6" />
+        }
+      >
         {/* Header */}
         <View style={styles.header}>
           <Pressable onPress={() => router.back()}>

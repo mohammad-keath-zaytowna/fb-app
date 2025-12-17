@@ -3,7 +3,8 @@ import { Order } from "@/types";
 import { router } from "expo-router";
 import { Receipt } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
-import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
+import { FlatList, Pressable, RefreshControl, StyleSheet, Text, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 type FilterTab = "all" | "pending" | "completed" | "canceled";
@@ -11,7 +12,9 @@ type FilterTab = "all" | "pending" | "completed" | "canceled";
 export default function OrdersScreen() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [activeTab, setActiveTab] = useState<FilterTab>("all");
+  const { t } = useTranslation();
 
   useEffect(() => {
     loadOrders();
@@ -33,6 +36,12 @@ export default function OrdersScreen() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await loadOrders();
+    setRefreshing(false);
   };
 
   const getStatusColor = (status: string) => {
@@ -68,7 +77,7 @@ export default function OrdersScreen() {
         <Receipt size={24} color="#9CA3AF" />
       </View>
       <View style={styles.orderInfo}>
-        <Text style={styles.orderNumber}>Order #{item._id.slice(-6)}</Text>
+        <Text style={styles.orderNumber}>{t('order')} #{item._id.slice(-6)}</Text>
         <Text style={styles.orderPrice}>JOD {(item.total || item.totalAmount || 0).toFixed(2)}</Text>
         <Text style={styles.orderDate}>{formatDate(item.createdAt)}</Text>
       </View>
@@ -100,17 +109,17 @@ export default function OrdersScreen() {
     <SafeAreaView style={styles.container} edges={['top']}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>My Orders</Text>
+        <Text style={styles.headerTitle}>{t('myOrders')}</Text>
       </View>
 
       {/* Filter Tabs */}
       <View style={styles.tabsContainer}>
         {(
           [
-            { key: "all", label: "All" },
-            { key: "pending", label: "Pending" },
-            { key: "completed", label: "Completed" },
-            { key: "canceled", label: "Canceled" },
+            { key: "all", label: t('all') },
+            { key: "pending", label: t('pending') },
+            { key: "completed", label: t('completed') },
+            { key: "canceled", label: t('canceled') },
           ] as Array<{ key: FilterTab; label: string }>
         ).map((tab) => (
           <Pressable
@@ -136,16 +145,16 @@ export default function OrdersScreen() {
       {/* Orders List */}
       {isLoading ? (
         <View style={styles.loadingContainer}>
-          <Text>Loading...</Text>
+          <Text>{t('loading')}</Text>
         </View>
       ) : orders.length === 0 ? (
         <View style={styles.emptyContainer}>
           <View style={styles.emptyIcon}>
             <Text style={styles.emptyIconText}>🛍️</Text>
           </View>
-          <Text style={styles.emptyTitle}>No orders yet</Text>
+          <Text style={styles.emptyTitle}>{t('noOrdersYet')}</Text>
           <Text style={styles.emptySubtitle}>
-            Your past and current orders will appear here.
+            {t('noOrdersDescription')}
           </Text>
         </View>
       ) : (
@@ -155,6 +164,9 @@ export default function OrdersScreen() {
           keyExtractor={(item) => item._id}
           contentContainerStyle={styles.ordersList}
           showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} title={t('pullToRefresh')} tintColor="#3B82F6" />
+          }
         />
       )}
     </SafeAreaView>

@@ -7,7 +7,8 @@ import { Image } from "expo-image";
 import { router, useLocalSearchParams } from "expo-router";
 import { ArrowLeft, Minus, Plus } from "lucide-react-native";
 import React, { useCallback, useEffect, useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function ProductDetailScreen() {
@@ -16,7 +17,9 @@ export default function ProductDetailScreen() {
   const [selectedSize, setSelectedSize] = useState<string>("M");
   const [selectedColor, setSelectedColor] = useState<string>("black");
   const [isLoading, setIsLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const { addToCart, items, updateQuantity } = useCartContext();
+  const { t } = useTranslation();
 
   const cartItem = items.find(
     (item) =>
@@ -37,6 +40,12 @@ export default function ProductDetailScreen() {
     }
   }, [id]);
 
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await loadProduct();
+    setRefreshing(false);
+  };
+
   useEffect(() => {
     if (id) {
       loadProduct();
@@ -49,7 +58,7 @@ export default function ProductDetailScreen() {
         <View
           style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
         >
-          <Text>Loading...</Text>
+          <Text>{t('loading')}</Text>
         </View>
       </SafeAreaView>
     );
@@ -60,7 +69,11 @@ export default function ProductDetailScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
-      <ScrollView>
+      <ScrollView
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} title={t('pullToRefresh')} tintColor="#3B82F6" />
+        }
+      >
         {/* Header */}
         <View style={styles.header}>
           <Pressable onPress={() => router.back()}>
@@ -88,13 +101,12 @@ export default function ProductDetailScreen() {
             <Text style={styles.productPrice}>JOD {product.price.toFixed(2)}</Text>
           </View>
           <Text style={styles.productDescription}>
-            {product.description ||
-              "Engineered for performance and style, featuring premium materials and responsive design for ultimate comfort."}
+            {product.description || t('productDescription')}
           </Text>
 
           {/* Size Selection */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Size</Text>
+            <Text style={styles.sectionTitle}>{t('size')}</Text>
             <View style={styles.optionsContainer}>
               {sizes.map((size) => (
                 <Pressable
@@ -120,7 +132,7 @@ export default function ProductDetailScreen() {
 
           {/* Color Selection */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Color</Text>
+            <Text style={styles.sectionTitle}>{t('color')}</Text>
             <View style={styles.optionsContainer}>
               {colors.map((color) => (
                 <Pressable
@@ -186,7 +198,7 @@ export default function ProductDetailScreen() {
                 })
               }
             >
-              Add to Order
+              {t('addToOrder')}
             </Button>
           )}
         </View>

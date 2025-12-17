@@ -5,12 +5,24 @@ import { Image } from "expo-image";
 import { router } from "expo-router";
 import { Minus, Plus, ShoppingCart, Trash2 } from "lucide-react-native";
 import React from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
+import { useTranslation } from "react-i18next";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function CartScreen() {
   const { items, updateQuantity, removeFromCart, getCartTotal } =
     useCartContext();
+  
+  const { t } = useTranslation();
+  const [refreshing, setRefreshing] = React.useState(false);
+
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    // Simulate refresh or validate cart
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 1000);
+  }, []);
 
   if (items.length === 0) {
     return (
@@ -19,16 +31,16 @@ export default function CartScreen() {
           <View style={styles.emptyIcon}>
             <ShoppingCart size={64} color="#9CA3AF" />
           </View>
-          <Text style={styles.emptyTitle}>Your Cart is Empty</Text>
+          <Text style={styles.emptyTitle}>{t('yourCartIsEmpty')}</Text>
           <Text style={styles.emptySubtitle}>
-            Start by adding products to your order
+            {t('startAddingProducts')}
           </Text>
           <Button
             size="lg"
             className="mt-6"
             onPress={() => router.push("/(tabs)/products")}
           >
-            Browse Products
+            {t('browseProducts')}
           </Button>
         </View>
       </SafeAreaView>
@@ -38,11 +50,16 @@ export default function CartScreen() {
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Shopping Cart</Text>
-        <Text style={styles.headerSubtitle}>{items.length} items</Text>
+        <Text style={styles.headerTitle}>{t('shoppingCart')}</Text>
+        <Text style={styles.headerSubtitle}>{items.length} {t('items')}</Text>
       </View>
 
-      <ScrollView style={styles.listContainer}>
+      <ScrollView 
+        style={styles.listContainer}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} title={t('pullToRefresh')} tintColor="#3B82F6" />
+        }
+      >
         {items.map((item) => (
           <View
             key={`${item.id}-${item.size}-${item.color}`}
@@ -121,15 +138,15 @@ export default function CartScreen() {
 
       <View style={styles.footer}>
         <View style={styles.totalRow}>
-          <Text style={styles.totalLabel}>Total</Text>
-          <Text style={styles.totalAmount}>${getCartTotal().toFixed(2)}</Text>
+          <Text style={styles.totalLabel}>{t('total')}</Text>
+          <Text style={styles.totalAmount}>JOD {getCartTotal().toFixed(2)}</Text>
         </View>
         <Button
           size="lg"
           className="w-full"
           onPress={() => router.push("/orders/new")}
         >
-          Checkout
+          {t('checkout')}
         </Button>
       </View>
     </SafeAreaView>

@@ -8,11 +8,13 @@ import * as z from "zod";
 import { forgotPasswordFormSchema } from "@/lib/forms/auth";
 import { forgetPasswordApiMethod } from "@/lib/api/auth";
 import RHFInput from "@/components/react-hook-form/rhf-input";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react-native";
 
 export default function ForgotPasswordScreen() {
   const [isLoading, setIsLoading] = useState(false);
+  const { t } = useTranslation();
 
   const form = useForm<z.infer<typeof forgotPasswordFormSchema>>({
     resolver: zodResolver(forgotPasswordFormSchema),
@@ -51,13 +53,13 @@ export default function ForgotPasswordScreen() {
           <Pressable onPress={() => router.back()}>
             <ArrowLeft size={24} color="#111827" />
           </Pressable>
-          <Text style={styles.headerTitle}>Forgot Password</Text>
+          <Text style={styles.headerTitle}>{t('forgotPasswordTitle')}</Text>
           <View style={{ width: 24 }} />
         </View>
 
         {/* Description */}
         <Text style={styles.description}>
-          Enter your email or phone number and we will send you a reset code.
+          {t('forgotPasswordDescription')}
         </Text>
 
         {/* Form */}
@@ -65,8 +67,8 @@ export default function ForgotPasswordScreen() {
           <View style={styles.form}>
             <RHFInput
               name="email"
-              label="Email or Phone"
-              placeholder="Enter your email or phone"
+              label={t('emailOrPhone')}
+              placeholder={t('emailOrPhonePlaceholder')}
               type="email"
             />
 
@@ -77,7 +79,7 @@ export default function ForgotPasswordScreen() {
               size="lg"
               className="w-full mt-8"
             >
-              Send Code
+              {t('sendCode')}
             </Button>
           </View>
         </FormProvider>
@@ -87,7 +89,7 @@ export default function ForgotPasswordScreen() {
           onPress={() => router.push("/(auth)/login")}
           style={styles.backLink}
         >
-          <Text style={styles.backLinkText}>Back to Login</Text>
+          <Text style={styles.backLinkText}>{t('backToLogin')}</Text>
         </Pressable>
       </View>
       </ScrollView>

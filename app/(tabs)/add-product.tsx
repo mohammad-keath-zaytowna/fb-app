@@ -10,10 +10,12 @@ import { FormProvider, useForm } from "react-hook-form";
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as z from "zod";
+import { useTranslation } from "react-i18next";
 
 export default function AddProductScreen() {
   const [isLoading, setIsLoading] = useState(false);
   const [image, setImage] = useState<any>(null);
+  const { t } = useTranslation();
 
   const form = useForm<z.infer<typeof productFormSchema>>({
     resolver: zodResolver(productFormSchema),
@@ -29,7 +31,7 @@ export default function AddProductScreen() {
   const pickImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
-      Alert.alert("Permission needed", "Please grant camera roll permissions");
+      Alert.alert(t('permissionNeeded'), t('grantPermissions'));
       return;
     }
 
@@ -47,7 +49,7 @@ export default function AddProductScreen() {
 
   const handleSubmit = async (data: z.infer<typeof productFormSchema>) => {
     if (isLoading || !image) {
-      Alert.alert("Error", "Please select an image");
+      Alert.alert(t('error'), t('selectImage'));
       return;
     }
 
@@ -57,9 +59,9 @@ export default function AddProductScreen() {
         ...data,
         image,
       });
-      Alert.alert("Success", "Product created successfully", [
+      Alert.alert(t('success'), t('productCreatedSuccess'), [
         {
-          text: "OK",
+          text: t('ok'),
           onPress: () => {
             form.reset();
             setImage(null);
@@ -67,7 +69,7 @@ export default function AddProductScreen() {
         },
       ]);
     } catch (error: any) {
-      Alert.alert("Error", error.message || "Failed to create product");
+      Alert.alert(t('error'), error.message || t('failedToCreateProduct'));
     } finally {
       setIsLoading(false);
     }
@@ -79,27 +81,27 @@ export default function AddProductScreen() {
         <View style={styles.content}>
           {/* Header */}
           <View style={styles.header}>
-            <Text style={styles.headerTitle}>Add New Product</Text>
+            <Text style={styles.headerTitle}>{t('addNewProduct')}</Text>
           </View>
 
           <FormProvider {...form}>
             {/* Image Upload */}
             <View style={styles.imageUploadContainer}>
-              <Text style={styles.sectionTitle}>Add Photo</Text>
+              <Text style={styles.sectionTitle}>{t('addPhoto')}</Text>
               <Pressable
                 style={styles.imageUploadArea}
                 onPress={pickImage}
               >
                 {image ? (
                   <Text style={styles.imageUploadText}>
-                    {image.fileName || "Image selected"}
+                    {image.fileName || t('imageSelected')}
                   </Text>
                 ) : (
                   <>
                     <ImagePlus size={48} color="#9CA3AF" />
-                    <Text style={styles.imageUploadTitle}>Add Photo</Text>
+                    <Text style={styles.imageUploadTitle}>{t('addPhoto')}</Text>
                     <Text style={styles.imageUploadSubtitle}>
-                      Upload an image for your product
+                      {t('uploadAnImage')}
                     </Text>
                     <Button
                       variant="outline"
@@ -107,7 +109,7 @@ export default function AddProductScreen() {
                       onPress={pickImage}
                       className="mt-4"
                     >
-                      Upload Image
+                      {t('uploadImage')}
                     </Button>
                   </>
                 )}
@@ -118,16 +120,16 @@ export default function AddProductScreen() {
             <View style={styles.form}>
               <RHFInput
                 name="name"
-                label="Product Name"
-                placeholder="e.g., Vintage Leather Jacket"
+                label={t('productName')}
+                placeholder={t('productNamePlaceholder')}
                 type="text"
               />
 
               <View style={{ marginTop: 16 }}>
                 <RHFInput
                   name="category"
-                  label="Category"
-                  placeholder="Select a category"
+                  label={t('category')}
+                  placeholder={t('categoryPlaceholder')}
                   type="text"
                 />
               </View>
@@ -135,8 +137,8 @@ export default function AddProductScreen() {
               <View style={{ marginTop: 16 }}>
                 <RHFInput
                   name="price"
-                  label="Price"
-                  placeholder="$0.00"
+                  label={t('price')}
+                  placeholder={t('pricePlaceholder')}
                   type="number"
                 />
               </View>
@@ -144,8 +146,8 @@ export default function AddProductScreen() {
               <View style={{ marginTop: 16 }}>
                 <RHFInput
                   name="description"
-                  label="Description"
-                  placeholder="Enter a brief description..."
+                  label={t('description')}
+                  placeholder={t('descriptionPlaceholder')}
                   type="text"
                 />
               </View>
@@ -159,7 +161,7 @@ export default function AddProductScreen() {
               size="lg"
               className="w-full mt-6"
             >
-              Save Product
+              {t('saveProduct')}
             </Button>
           </FormProvider>
         </View>
