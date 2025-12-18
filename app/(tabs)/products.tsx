@@ -98,12 +98,12 @@ export default function ProductsScreen() {
             {item.status === "active"
               ? t('inStock')
               : item.status === "Low Stock"
-              ? t('lowStock')
-              : item.status === "On Sale"
-              ? t('onSale')
-              : item.status === "Out of Stock"
-              ? t('outOfStock')
-              : item.status || t('newArrival')}
+                ? t('lowStock')
+                : item.status === "On Sale"
+                  ? t('onSale')
+                  : item.status === "Out of Stock"
+                    ? t('outOfStock')
+                    : item.status || t('newArrival')}
           </Text>
         </View>
       </Pressable>
@@ -223,7 +223,6 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 16,
     color: "#9CA3AF",
-    textAlign: "left",
   },
   filtersContainer: {
     flexDirection: "row",

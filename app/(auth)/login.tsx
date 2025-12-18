@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { View, Text, ScrollView, Pressable, Image, StyleSheet } from "react-native";
+import { View, Text, ScrollView, Pressable, StyleSheet, KeyboardAvoidingView, Platform } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
+import { Image } from "expo-image";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -50,64 +51,69 @@ export default function LoginScreen() {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1 }} edges={['top']}>
-      <ScrollView
-        contentContainerStyle={styles.container}
-        className="bg-gray-50"
-      >
-        <View style={styles.content}>
-          {/* Logo */}
-          <View style={styles.logoContainer}>
-            <View style={styles.logo}>
-              <Text style={styles.logoText}>💎</Text>
-            </View>
-            <Text style={styles.logoLabel}>LOREM IPSUM</Text>
-          </View>
+    <KeyboardAvoidingView style={{ flex: 1 }}
+      behavior={Platform.OS === "ios" ? "padding" : "height"} >
 
-          {/* Welcome Text */}
-          <Text style={styles.title}>{t('welcomeBack')}</Text>
-          <Text style={styles.subtitle}>{t('loginSubtitle')}</Text>
-
-          {/* Form */}
-          <FormProvider {...form}>
-            <View style={styles.form}>
-              <RHFInput
-                name="email"
-                label={t('emailOrPhone')}
-                placeholder={t('emailOrPhonePlaceholder')}
-                type="email"
+      <SafeAreaView style={{ flex: 1 }} edges={['top']}>
+        <ScrollView
+          contentContainerStyle={styles.container}
+          className="bg-gray-50"
+        >
+          <View style={styles.content}>
+            {/* Logo */}
+            <View style={styles.logoContainer}>
+              <Image
+                source={require('@/assets/images/full-logo.png')}
+                style={styles.logoImage}
+                contentFit="contain"
               />
-
-              <View style={styles.passwordContainer}>
-                <RHFInput
-                  name="password"
-                  label={t('password')}
-                  placeholder={t('passwordPlaceholder')}
-                  type="password"
-                  showPasswordToggle
-                />
-                <Pressable
-                  onPress={() => router.push("/(auth)/forgot-password")}
-                  style={styles.forgotPasswordLink}
-                >
-                  <Text style={styles.forgotPasswordText}>{t('forgotPassword')}</Text>
-                </Pressable>
-              </View>
-
-              <Button
-                onPress={form.handleSubmit(handleSubmit)}
-                disabled={isLoading}
-                isLoading={isLoading}
-                size="lg"
-                className="w-full mt-4"
-              >
-                {isLoading ? t('loggingIn') : t('login')}
-              </Button>
             </View>
-          </FormProvider>
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+
+            {/* Welcome Text */}
+            <Text style={styles.title}>{t('welcomeBack')}</Text>
+            <Text style={styles.subtitle}>{t('loginSubtitle')}</Text>
+
+            {/* Form */}
+            <FormProvider {...form}>
+              <View style={styles.form}>
+                <RHFInput
+                  name="email"
+                  label={t('emailOrPhone')}
+                  placeholder={t('emailOrPhonePlaceholder')}
+                  type="email"
+                />
+
+                <View style={styles.passwordContainer}>
+                  <RHFInput
+                    name="password"
+                    label={t('password')}
+                    placeholder={t('passwordPlaceholder')}
+                    type="password"
+                    showPasswordToggle
+                  />
+                  <Pressable
+                    onPress={() => router.push("/(auth)/forgot-password")}
+                    style={styles.forgotPasswordLink}
+                  >
+                    <Text style={styles.forgotPasswordText}>{t('forgotPassword')}</Text>
+                  </Pressable>
+                </View>
+
+                <Button
+                  onPress={form.handleSubmit(handleSubmit)}
+                  disabled={isLoading}
+                  isLoading={isLoading}
+                  size="lg"
+                  className="w-full mt-4"
+                >
+                  {isLoading ? t('loggingIn') : t('login')}
+                </Button>
+              </View>
+            </FormProvider>
+          </View>
+        </ScrollView>
+      </SafeAreaView>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -126,22 +132,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 40,
   },
-  logo: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: "#3B82F6",
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 10,
-  },
-  logoText: {
-    fontSize: 30,
-  },
-  logoLabel: {
-    fontSize: 12,
-    color: "#6B7280",
-    fontWeight: "500",
+  logoImage: {
+    width: 200,
+    height: 80,
   },
   title: {
     fontSize: 28,

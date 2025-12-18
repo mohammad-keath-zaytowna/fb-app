@@ -5,6 +5,7 @@ export const orderFormSchema = z.object({
   phoneNumber: z.string().min(1, "Phone number is required"),
   address: z.string().min(1, "Address is required"),
   shipping: z.number().min(0, "Shipping must be 0 or greater"),
+  discount: z.number().min(0, "Discount must be 0 or greater").default(0),
   notes: z.string().optional(),
   userNotes: z.string().optional(),
   facebookProfile: z.string().optional(),

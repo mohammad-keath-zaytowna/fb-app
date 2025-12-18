@@ -2,7 +2,6 @@ import { getLocales } from "expo-localization";
 import i18n from "i18next";
 import "intl-pluralrules";
 import { initReactI18next } from "react-i18next";
-import { I18nManager } from "react-native";
 
 export const RESOURCES = {
   en: {
@@ -98,6 +97,8 @@ export const RESOURCES = {
       language: "Language",
       english: "English",
       arabic: "Arabic",
+      languageChanged: "Language Changed",
+      appWillRestart: "The app will restart to apply the language change.",
       
       // Add Product
       addNewProduct: "Add New Product",
@@ -146,6 +147,7 @@ export const RESOURCES = {
       enterDeliveryAddress: "Enter delivery address",
       shippingAndNotes: "Shipping & Notes",
       shippingCost: "Shipping Cost (JOD)",
+      discount: "Discount (JOD)",
       notes: "Notes",
       internalNotes: "Internal notes (optional)",
       userNotes: "User Notes",
@@ -254,6 +256,8 @@ export const RESOURCES = {
       language: "اللغة",
       english: "English",
       arabic: "العربية",
+      languageChanged: "تم تغيير اللغة",
+      appWillRestart: "سيتم إعادة تشغيل التطبيق لتطبيق تغيير اللغة.",
       
       // Add Product
       addNewProduct: "إضافة منتج جديد",
@@ -302,6 +306,7 @@ export const RESOURCES = {
       enterDeliveryAddress: "أدخل عنوان التوصيل",
       shippingAndNotes: "الشحن والملاحظات",
       shippingCost: "تكلفة الشحن (دينار)",
+      discount: "الخصم (دينار)",
       notes: "ملاحظات",
       internalNotes: "ملاحظات داخلية (اختياري)",
       userNotes: "ملاحظات المستخدم",
@@ -321,7 +326,7 @@ export const RESOURCES = {
 
 i18n.use(initReactI18next).init({
   resources: RESOURCES,
-  lng: I18nManager.isRTL ? "ar" : getLocales()[0]?.languageCode ?? "en",
+  lng: getLocales()[0]?.languageCode === 'ar' ? 'ar' : 'en',
   fallbackLng: "en",
   interpolation: {
     escapeValue: false,

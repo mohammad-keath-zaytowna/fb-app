@@ -3,15 +3,45 @@ import { useAuthContext } from "@/contexts/AuthContext";
 import { router } from "expo-router";
 import { Mail, Package, User } from "lucide-react-native";
 import React from "react";
-import { ScrollView, StyleSheet, Text, View, Pressable } from "react-native";
+import { ScrollView, StyleSheet, Text, View, Pressable, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useTranslation } from "react-i18next";
-import { I18nManager } from "react-native";
-import * as Updates from "expo-updates";
+import { useRTL } from "@/components/rtl-view";
+import { useDirection } from "@/components/direction-provider";
+import * as Updates from 'expo-updates';
 
 export default function ProfileScreen() {
   const { user, logout } = useAuthContext();
   const { t, i18n } = useTranslation();
+  const isRTL = useRTL(); // This hook will handle RTL updates
+  const { getDirectionAwareStyle } = useDirection();
+
+  // Create direction-aware styles
+  const dynamicStyles = {
+    container: styles.container,
+    content: styles.content,
+    header: getDirectionAwareStyle(styles.header),
+    headerTitle: styles.headerTitle,
+    card: styles.card,
+    avatarContainer: styles.avatarContainer,
+    avatar: styles.avatar,
+    userName: styles.userName,
+    userEmail: styles.userEmail,
+    roleBadge: styles.roleBadge,
+    roleText: styles.roleText,
+    sectionTitle: styles.sectionTitle,
+    infoRow: getDirectionAwareStyle(styles.infoRow),
+    infoIcon: styles.infoIcon,
+    infoContent: styles.infoContent,
+    infoLabel: styles.infoLabel,
+    infoValue: styles.infoValue,
+    logoutButtonContainer: styles.logoutButtonContainer,
+    languageContainer: getDirectionAwareStyle(styles.languageContainer),
+    languageButton: styles.languageButton,
+    languageButtonActive: styles.languageButtonActive,
+    languageButtonText: styles.languageButtonText,
+    languageButtonTextActive: styles.languageButtonTextActive,
+  };
 
   const handleLogout = async () => {
     await logout();
@@ -19,46 +49,54 @@ export default function ProfileScreen() {
   };
 
   const changeLanguage = async (lang: string) => {
+    console.log('Before changeLanguage:', i18n.language);
     try {
       await i18n.changeLanguage(lang);
-      const isRTL = lang === 'ar';
+      console.log('After changeLanguage:', i18n.language);
       
-      // Check if RTL change is needed
-      if (I18nManager.isRTL !== isRTL) {
-        I18nManager.forceRTL(isRTL);
-        // Inform user to restart app for RTL changes
-        const { Alert } = require('react-native');
-        Alert.alert(
-          t('language'),
-          'Please restart the app to apply RTL changes.',
-          [{ text: t('ok') }]
-        );
-      }
+      // Show alert and restart app for RTL changes to take effect
+      Alert.alert(
+        t('languageChanged'),
+        t('appWillRestart'),
+        [
+          {
+            text: t('ok'),
+            onPress: async () => {
+              try {
+                await Updates.reloadAsync();
+              } catch (error) {
+                console.error('Failed to restart app:', error);
+                Alert.alert('Error', 'Failed to restart app. Please restart manually.');
+              }
+            },
+          },
+        ]
+      );
     } catch (error) {
       console.error('Error changing language:', error);
     }
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={["top"]}>
+    <SafeAreaView style={dynamicStyles.container} edges={["top"]}>
       <ScrollView>
-        <View style={styles.content}>
+        <View style={dynamicStyles.content}>
           {/* Header */}
-          <View style={styles.header}>
-            <Text style={styles.headerTitle}>{t('profile')}</Text>
+          <View style={dynamicStyles.header}>
+            <Text style={dynamicStyles.headerTitle}>{t('profile')}</Text>
           </View>
 
           {/* User Info Card */}
-          <View style={styles.card}>
-            <View style={styles.avatarContainer}>
-              <View style={styles.avatar}>
+          <View style={dynamicStyles.card}>
+            <View style={dynamicStyles.avatarContainer}>
+              <View style={dynamicStyles.avatar}>
                 <User size={40} color="#3B82F6" />
               </View>
             </View>
-            <Text style={styles.userName}>{user?.name || "User"}</Text>
-            <Text style={styles.userEmail}>{user?.email || ""}</Text>
-            <View style={styles.roleBadge}>
-              <Text style={styles.roleText}>
+            <Text style={dynamicStyles.userName}>{user?.name || "User"}</Text>
+            <Text style={dynamicStyles.userEmail}>{user?.email || ""}</Text>
+            <View style={dynamicStyles.roleBadge}>
+              <Text style={dynamicStyles.roleText}>
                 {user?.role?.charAt(0).toUpperCase() +
                   (user?.role?.slice(1) || "") || "User"}
               </Text>
@@ -66,36 +104,36 @@ export default function ProfileScreen() {
           </View>
 
           {/* User Details */}
-          <View style={styles.card}>
-            <Text style={styles.sectionTitle}>{t('accountInformation')}</Text>
+          <View style={dynamicStyles.card}>
+            <Text style={dynamicStyles.sectionTitle}>{t('accountInformation')}</Text>
 
-            <View style={styles.infoRow}>
-              <View style={styles.infoIcon}>
+            <View style={dynamicStyles.infoRow}>
+              <View style={dynamicStyles.infoIcon}>
                 <User size={20} color="#6B7280" />
               </View>
-              <View style={styles.infoContent}>
-                <Text style={styles.infoLabel}>{t('name')}</Text>
-                <Text style={styles.infoValue}>{user?.name || "N/A"}</Text>
+              <View style={dynamicStyles.infoContent}>
+                <Text style={dynamicStyles.infoLabel}>{t('name')}</Text>
+                <Text style={dynamicStyles.infoValue}>{user?.name || "N/A"}</Text>
               </View>
             </View>
 
-            <View style={styles.infoRow}>
-              <View style={styles.infoIcon}>
+            <View style={dynamicStyles.infoRow}>
+              <View style={dynamicStyles.infoIcon}>
                 <Mail size={20} color="#6B7280" />
               </View>
-              <View style={styles.infoContent}>
-                <Text style={styles.infoLabel}>{t('email')}</Text>
-                <Text style={styles.infoValue}>{user?.email || "N/A"}</Text>
+              <View style={dynamicStyles.infoContent}>
+                <Text style={dynamicStyles.infoLabel}>{t('email')}</Text>
+                <Text style={dynamicStyles.infoValue}>{user?.email || "N/A"}</Text>
               </View>
             </View>
 
-            <View style={styles.infoRow}>
-              <View style={styles.infoIcon}>
+            <View style={dynamicStyles.infoRow}>
+              <View style={dynamicStyles.infoIcon}>
                 <Package size={20} color="#6B7280" />
               </View>
-              <View style={styles.infoContent}>
-                <Text style={styles.infoLabel}>{t('role')}</Text>
-                <Text style={styles.infoValue}>
+              <View style={dynamicStyles.infoContent}>
+                <Text style={dynamicStyles.infoLabel}>{t('role')}</Text>
+                <Text style={dynamicStyles.infoValue}>
                   {t(user?.role || 'user')}
                 </Text>
               </View>
@@ -103,20 +141,20 @@ export default function ProfileScreen() {
           </View>
 
           {/* Language Switcher */}
-          <View style={styles.card}>
-            <Text style={styles.sectionTitle}>{t('language')}</Text>
-            <View style={styles.languageContainer}>
+          <View style={dynamicStyles.card}>
+            <Text style={dynamicStyles.sectionTitle}>{t('language')}</Text>
+            <View style={dynamicStyles.languageContainer}>
               <Pressable
                 style={[
-                  styles.languageButton,
-                  i18n.language === 'en' && styles.languageButtonActive,
+                  dynamicStyles.languageButton,
+                  i18n.language === 'en' && dynamicStyles.languageButtonActive,
                 ]}
                 onPress={() => changeLanguage('en')}
               >
                 <Text
                   style={[
-                    styles.languageButtonText,
-                    i18n.language === 'en' && styles.languageButtonTextActive,
+                    dynamicStyles.languageButtonText,
+                    i18n.language === 'en' && dynamicStyles.languageButtonTextActive,
                   ]}
                 >
                   {t('english')}
@@ -124,15 +162,15 @@ export default function ProfileScreen() {
               </Pressable>
               <Pressable
                 style={[
-                  styles.languageButton,
-                  i18n.language === 'ar' && styles.languageButtonActive,
+                  dynamicStyles.languageButton,
+                  i18n.language === 'ar' && dynamicStyles.languageButtonActive,
                 ]}
                 onPress={() => changeLanguage('ar')}
               >
                 <Text
                   style={[
-                    styles.languageButtonText,
-                    i18n.language === 'ar' && styles.languageButtonTextActive,
+                    dynamicStyles.languageButtonText,
+                    i18n.language === 'ar' && dynamicStyles.languageButtonTextActive,
                   ]}
                 >
                   {t('arabic')}
@@ -142,7 +180,7 @@ export default function ProfileScreen() {
           </View>
 
           {/* Logout Button */}
-          <View style={styles.logoutButtonContainer}>
+          <View style={dynamicStyles.logoutButtonContainer}>
             <Button
               size="lg"
               action="negative"

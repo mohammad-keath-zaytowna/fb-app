@@ -7,7 +7,7 @@ import * as ImagePicker from "expo-image-picker";
 import { ImagePlus } from "lucide-react-native";
 import React, { useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
-import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as z from "zod";
 import { useTranslation } from "react-i18next";
@@ -76,97 +76,101 @@ export default function AddProductScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      <ScrollView>
-        <View style={styles.content}>
-          {/* Header */}
-          <View style={styles.header}>
-            <Text style={styles.headerTitle}>{t('addNewProduct')}</Text>
-          </View>
+    <KeyboardAvoidingView style={{ flex: 1 }}
+      behavior={Platform.OS === "ios" ? "padding" : "height"} >
+      <SafeAreaView style={styles.container} edges={['top']}>
 
-          <FormProvider {...form}>
-            {/* Image Upload */}
-            <View style={styles.imageUploadContainer}>
-              <Text style={styles.sectionTitle}>{t('addPhoto')}</Text>
-              <Pressable
-                style={styles.imageUploadArea}
-                onPress={pickImage}
-              >
-                {image ? (
-                  <Text style={styles.imageUploadText}>
-                    {image.fileName || t('imageSelected')}
-                  </Text>
-                ) : (
-                  <>
-                    <ImagePlus size={48} color="#9CA3AF" />
-                    <Text style={styles.imageUploadTitle}>{t('addPhoto')}</Text>
-                    <Text style={styles.imageUploadSubtitle}>
-                      {t('uploadAnImage')}
+        <ScrollView>
+          <View style={styles.content}>
+            {/* Header */}
+            <View style={styles.header}>
+              <Text style={styles.headerTitle}>{t('addNewProduct')}</Text>
+            </View>
+
+            <FormProvider {...form}>
+              {/* Image Upload */}
+              <View style={styles.imageUploadContainer}>
+                <Text style={styles.sectionTitle}>{t('addPhoto')}</Text>
+                <Pressable
+                  style={styles.imageUploadArea}
+                  onPress={pickImage}
+                >
+                  {image ? (
+                    <Text style={styles.imageUploadText}>
+                      {image.fileName || t('imageSelected')}
                     </Text>
-                    <Button
-                      variant="outline"
-                      size="md"
-                      onPress={pickImage}
-                      className="mt-4"
-                    >
-                      {t('uploadImage')}
-                    </Button>
-                  </>
-                )}
-              </Pressable>
-            </View>
+                  ) : (
+                    <>
+                      <ImagePlus size={48} color="#9CA3AF" />
+                      <Text style={styles.imageUploadTitle}>{t('addPhoto')}</Text>
+                      <Text style={styles.imageUploadSubtitle}>
+                        {t('uploadAnImage')}
+                      </Text>
+                      <Button
+                        variant="outline"
+                        size="md"
+                        onPress={pickImage}
+                        className="mt-4"
+                      >
+                        {t('uploadImage')}
+                      </Button>
+                    </>
+                  )}
+                </Pressable>
+              </View>
 
-            {/* Form Fields */}
-            <View style={styles.form}>
-              <RHFInput
-                name="name"
-                label={t('productName')}
-                placeholder={t('productNamePlaceholder')}
-                type="text"
-              />
-
-              <View style={{ marginTop: 16 }}>
+              {/* Form Fields */}
+              <View style={styles.form}>
                 <RHFInput
-                  name="category"
-                  label={t('category')}
-                  placeholder={t('categoryPlaceholder')}
+                  name="name"
+                  label={t('productName')}
+                  placeholder={t('productNamePlaceholder')}
                   type="text"
                 />
+
+                <View style={{ marginTop: 16 }}>
+                  <RHFInput
+                    name="category"
+                    label={t('category')}
+                    placeholder={t('categoryPlaceholder')}
+                    type="text"
+                  />
+                </View>
+
+                <View style={{ marginTop: 16 }}>
+                  <RHFInput
+                    name="price"
+                    label={t('price')}
+                    placeholder={t('pricePlaceholder')}
+                    type="number"
+                  />
+                </View>
+
+                <View style={{ marginTop: 16 }}>
+                  <RHFInput
+                    name="description"
+                    label={t('description')}
+                    placeholder={t('descriptionPlaceholder')}
+                    type="text"
+                  />
+                </View>
               </View>
 
-              <View style={{ marginTop: 16 }}>
-                <RHFInput
-                  name="price"
-                  label={t('price')}
-                  placeholder={t('pricePlaceholder')}
-                  type="number"
-                />
-              </View>
-
-              <View style={{ marginTop: 16 }}>
-                <RHFInput
-                  name="description"
-                  label={t('description')}
-                  placeholder={t('descriptionPlaceholder')}
-                  type="text"
-                />
-              </View>
-            </View>
-
-            {/* Action Button */}
-            <Button
-              onPress={form.handleSubmit(handleSubmit)}
-              disabled={isLoading}
-              isLoading={isLoading}
-              size="lg"
-              className="w-full mt-6"
-            >
-              {t('saveProduct')}
-            </Button>
-          </FormProvider>
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+              {/* Action Button */}
+              <Button
+                onPress={form.handleSubmit(handleSubmit)}
+                disabled={isLoading}
+                isLoading={isLoading}
+                size="lg"
+                className="w-full mt-6"
+              >
+                {t('saveProduct')}
+              </Button>
+            </FormProvider>
+          </View>
+        </ScrollView>
+      </SafeAreaView>
+    </KeyboardAvoidingView>
   );
 }
 

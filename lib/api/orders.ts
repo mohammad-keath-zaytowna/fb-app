@@ -96,6 +96,7 @@ export const createOrder = async (orderData: {
   phoneNumber: string;
   address: string;
   shipping: number;
+  discount?: number;
   notes?: string;
   userNotes?: string;
   facebookProfile?: string;

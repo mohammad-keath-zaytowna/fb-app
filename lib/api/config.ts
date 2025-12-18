@@ -3,8 +3,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios, { AxiosInstance, AxiosResponse } from "axios";
 
 // API Configuration
-export const API_BASE_URL =
-  process.env.EXPO_PUBLIC_BACKEND_URL || "https://server.munjiz-jo.online/api";
+// export const API_BASE_URL = "https://server.munjiz-jo.online/api";
+export const API_BASE_URL = "http://192.168.0.70:5000/api";
 
 // Create axios instance
 const apiClient: AxiosInstance = axios.create({

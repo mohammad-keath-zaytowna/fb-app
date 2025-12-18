@@ -3,7 +3,6 @@ import { API_BASE_URL } from "@/lib/api/config";
 import { createOrder } from "@/lib/api/orders";
 import { getProductById } from "@/lib/api/products";
 import { orderFormSchema } from "@/lib/forms/order";
-import { OrderItem, Product } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Image } from "expo-image";
 import { router, useLocalSearchParams } from "expo-router";
@@ -20,9 +19,10 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useTranslation } from "react-i18next";
 import * as z from "zod";
 import { useCartContext } from "@/contexts/CartContext";
-import { useTranslation } from "react-i18next";
+import { useDirection } from "@/components/direction-provider";
 
 export default function NewOrderScreen() {
   const {
@@ -49,6 +49,44 @@ export default function NewOrderScreen() {
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingProduct, setIsLoadingProduct] = useState(false);
   const { t } = useTranslation();
+  const { getDirectionAwareStyle } = useDirection();
+
+  // Create dynamic styles that respect direction
+  const dynamicStyles = {
+    container: styles.container,
+    header: getDirectionAwareStyle(styles.header),
+    headerTitle: styles.headerTitle,
+    content: styles.content,
+    section: styles.section,
+    sectionTitle: styles.sectionTitle,
+    cartItem: getDirectionAwareStyle(styles.cartItem),
+    itemImage: styles.itemImage,
+    itemDetails: styles.itemDetails,
+    itemName: styles.itemName,
+    itemPrice: styles.itemPrice,
+    itemVariant: styles.itemVariant,
+    itemActions: getDirectionAwareStyle(styles.itemActions),
+    quantityControls: getDirectionAwareStyle(styles.quantityControls),
+    quantityButton: styles.quantityButton,
+    quantityText: styles.quantityText,
+    itemTotal: styles.itemTotal,
+    removeButton: styles.removeButton,
+    emptyCart: styles.emptyCart,
+    emptyCartText: styles.emptyCartText,
+    inputGroup: styles.inputGroup,
+    inputLabel: styles.inputLabel,
+    input: styles.input,
+    textArea: styles.textArea,
+    facebookInput: getDirectionAwareStyle(styles.facebookInput),
+    facebookIcon: styles.facebookIcon,
+    facebookInputField: styles.facebookInputField,
+    summaryRow: getDirectionAwareStyle(styles.summaryRow),
+    summaryLabel: styles.summaryLabel,
+    summaryValue: styles.summaryValue,
+    totalRow: styles.totalRow,
+    totalLabel: styles.totalLabel,
+    totalValue: styles.totalValue,
+  };
 
   const form = useForm<z.infer<typeof orderFormSchema>>({
     resolver: zodResolver(orderFormSchema),
@@ -57,6 +95,7 @@ export default function NewOrderScreen() {
       phoneNumber: "",
       address: "",
       shipping: 10,
+      discount: 0,
       notes: "",
       userNotes: "",
       facebookProfile: "",
@@ -89,7 +128,7 @@ export default function NewOrderScreen() {
       });
     } catch (error) {
       console.error("Failed to load product:", error);
-      Alert.alert(t('error'), t('failedToLoadProduct'));
+      Alert.alert(t("error"), t("failedToLoadProduct"));
     } finally {
       setIsLoadingProduct(false);
     }
@@ -102,7 +141,8 @@ export default function NewOrderScreen() {
   const calculateTotal = () => {
     const subtotal = calculateSubtotal();
     const shipping = form.watch("shipping") || 0;
-    return subtotal + shipping;
+    const discount = form.watch("discount") || 0;
+    return Math.max(0, subtotal + shipping - discount);
   };
 
   const updateItemQuantity = (index: number, change: number) => {
@@ -122,7 +162,7 @@ export default function NewOrderScreen() {
 
   const handleSubmit = async (data: z.infer<typeof orderFormSchema>) => {
     if (cartItems.length === 0) {
-      Alert.alert(t('error'), t('addAtLeastOneProduct'));
+      Alert.alert(t("error"), t("addAtLeastOneProduct"));
       return;
     }
 
@@ -140,6 +180,7 @@ export default function NewOrderScreen() {
         phoneNumber: data.phoneNumber,
         address: data.address,
         shipping: data.shipping,
+        discount: data.discount || 0,
         total: calculateTotal(),
         notes: data.notes || undefined,
         userNotes: data.userNotes || undefined,
@@ -150,7 +191,7 @@ export default function NewOrderScreen() {
       clearCart();
       router.replace(`/orders/${order._id}`);
     } catch (error: any) {
-      Alert.alert(t('error'), error.message || t('failedToCreateOrder'));
+      Alert.alert(t("error"), error.message || t("failedToCreateOrder"));
     } finally {
       setIsLoading(false);
     }
@@ -162,29 +203,29 @@ export default function NewOrderScreen() {
         <View
           style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
         >
-          <Text>{t('loadingProduct')}</Text>
+          <Text>{t("loadingProduct")}</Text>
         </View>
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
+    <SafeAreaView style={dynamicStyles.container} edges={["top", "bottom"]}>
       <ScrollView>
         {/* Header */}
-        <View style={styles.header}>
+        <View style={dynamicStyles.header}>
           <Pressable onPress={() => router.back()}>
             <ArrowLeft size={24} color="#111827" />
           </Pressable>
-          <Text style={styles.headerTitle}>{t('newOrder')}</Text>
+          <Text style={dynamicStyles.headerTitle}>{t("newOrder")}</Text>
           <View style={{ width: 24 }} />
         </View>
 
-        <View style={styles.content}>
+        <View style={dynamicStyles.content}>
           {/* Cart Items */}
           {cartItems.length > 0 ? (
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>{t('orderItems')}</Text>
+            <View style={dynamicStyles.section}>
+              <Text style={dynamicStyles.sectionTitle}>{t("orderItems")}</Text>
               {cartItems.map((item, index) => {
                 const imageUri = item.image?.startsWith("http")
                   ? item.image
@@ -193,45 +234,45 @@ export default function NewOrderScreen() {
                 return (
                   <View
                     key={`${item.id}-${item.size}-${item.color}`}
-                    style={styles.cartItem}
+                    style={dynamicStyles.cartItem}
                   >
                     <Image
                       source={{ uri: imageUri }}
-                      style={styles.itemImage}
+                      style={dynamicStyles.itemImage}
                       contentFit="cover"
                     />
-                    <View style={styles.itemDetails}>
-                      <Text style={styles.itemName}>{item.name}</Text>
-                      <Text style={styles.itemPrice}>
+                    <View style={dynamicStyles.itemDetails}>
+                      <Text style={dynamicStyles.itemName}>{item.name}</Text>
+                      <Text style={dynamicStyles.itemPrice}>
                         JOD {item.price.toFixed(2)}
                       </Text>
                       {(item.size || item.color) && (
-                        <Text style={styles.itemVariant}>
+                        <Text style={dynamicStyles.itemVariant}>
                           {[item.size, item.color].filter(Boolean).join(" • ")}
                         </Text>
                       )}
                     </View>
-                    <View style={styles.itemActions}>
-                      <View style={styles.quantityControls}>
+                    <View style={dynamicStyles.itemActions}>
+                      <View style={dynamicStyles.quantityControls}>
                         <Pressable
-                          style={styles.quantityButton}
+                          style={dynamicStyles.quantityButton}
                           onPress={() => updateItemQuantity(index, -1)}
                         >
                           <Minus size={16} color="#6B7280" />
                         </Pressable>
-                        <Text style={styles.quantityText}>{item.quantity}</Text>
+                        <Text style={dynamicStyles.quantityText}>{item.quantity}</Text>
                         <Pressable
-                          style={styles.quantityButton}
+                          style={dynamicStyles.quantityButton}
                           onPress={() => updateItemQuantity(index, 1)}
                         >
                           <Plus size={16} color="#6B7280" />
                         </Pressable>
                       </View>
-                      <Text style={styles.itemTotal}>
+                      <Text style={dynamicStyles.itemTotal}>
                         JOD {(item.price * item.quantity).toFixed(2)}
                       </Text>
                       <Pressable
-                        style={styles.removeButton}
+                        style={dynamicStyles.removeButton}
                         onPress={() => removeItem(index)}
                       >
                         <Trash2 size={18} color="#EF4444" />
@@ -246,55 +287,55 @@ export default function NewOrderScreen() {
                 className="mt-4"
                 onPress={() => router.push("/products")}
               >
-                {t('addMoreProducts')}
+                {t("addMoreProducts")}
               </Button>
             </View>
           ) : (
-            <View style={styles.emptyCart}>
-              <Text style={styles.emptyCartText}>{t('noItemsInCart')}</Text>
+            <View style={dynamicStyles.emptyCart}>
+              <Text style={dynamicStyles.emptyCartText}>{t("noItemsInCart")}</Text>
               <Button
                 size="md"
                 className="mt-4"
                 onPress={() => router.push("/products")}
               >
-                {t('browseProducts')}
+                {t("browseProducts")}
               </Button>
             </View>
           )}
 
           {/* User Information */}
           <FormProvider {...form}>
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>{t('userInformation')}</Text>
+            <View style={dynamicStyles.section}>
+              <Text style={dynamicStyles.sectionTitle}>{t("userInformation")}</Text>
 
-              <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>{t('userName')} *</Text>
+              <View style={dynamicStyles.inputGroup}>
+                <Text style={dynamicStyles.inputLabel}>{t("userName")} *</Text>
                 <TextInput
-                  style={styles.input}
-                  placeholder={t('enterUserName')}
+                  style={dynamicStyles.input}
+                  placeholder={t("enterUserName")}
                   value={form.watch("userName")}
                   onChangeText={(text) => form.setValue("userName", text)}
                 />
               </View>
 
-              <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>{t('phoneNumber')} *</Text>
+              <View style={dynamicStyles.inputGroup}>
+                <Text style={dynamicStyles.inputLabel}>{t("phoneNumber")} *</Text>
                 <TextInput
-                  style={styles.input}
-                  placeholder={t('enterPhoneNumber')}
+                  style={dynamicStyles.input}
+                  placeholder={t("enterPhoneNumber")}
                   keyboardType="phone-pad"
                   value={form.watch("phoneNumber")}
                   onChangeText={(text) => form.setValue("phoneNumber", text)}
                 />
               </View>
 
-              <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>{t('address')} *</Text>
+              <View style={dynamicStyles.inputGroup}>
+                <Text style={dynamicStyles.inputLabel}>{t("address")} *</Text>
                 <TextInput
-                  style={[styles.input, styles.textArea]}
+                  style={[dynamicStyles.input, dynamicStyles.textArea]}
                   multiline
                   numberOfLines={3}
-                  placeholder={t('enterDeliveryAddress')}
+                  placeholder={t("enterDeliveryAddress")}
                   value={form.watch("address")}
                   onChangeText={(text) => form.setValue("address", text)}
                   textAlignVertical="top"
@@ -303,13 +344,54 @@ export default function NewOrderScreen() {
             </View>
 
             {/* Shipping & Notes */}
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>{t('shippingAndNotes')}</Text>
+            <View style={dynamicStyles.section}>
+              <Text style={dynamicStyles.sectionTitle}>{t("shippingAndNotes")}</Text>
 
-              <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>{t('shippingCost')} *</Text>
+              <View style={dynamicStyles.inputGroup}>
+                <Text style={dynamicStyles.inputLabel}>{t("notes")}</Text>
                 <TextInput
-                  style={styles.input}
+                  style={[dynamicStyles.input, dynamicStyles.textArea]}
+                  multiline
+                  numberOfLines={3}
+                  placeholder={t("internalNotes")}
+                  value={form.watch("notes")}
+                  onChangeText={(text) => form.setValue("notes", text)}
+                  textAlignVertical="top"
+                />
+              </View>
+
+              <View style={dynamicStyles.inputGroup}>
+                <Text style={dynamicStyles.inputLabel}>{t("userNotes")}</Text>
+                <TextInput
+                  style={[dynamicStyles.input, dynamicStyles.textArea]}
+                  multiline
+                  numberOfLines={3}
+                  placeholder={t("userNotesPlaceholder")}
+                  value={form.watch("userNotes")}
+                  onChangeText={(text) => form.setValue("userNotes", text)}
+                  textAlignVertical="top"
+                />
+              </View>
+
+              <View style={dynamicStyles.inputGroup}>
+                <Text style={dynamicStyles.inputLabel}>{t("facebookProfile")}</Text>
+                <View style={dynamicStyles.facebookInput}>
+                  <Text style={dynamicStyles.facebookIcon}>f</Text>
+                  <TextInput
+                    style={dynamicStyles.facebookInputField}
+                    placeholder={t("facebookPlaceholder")}
+                    value={form.watch("facebookProfile")}
+                    onChangeText={(text) =>
+                      form.setValue("facebookProfile", text)
+                    }
+                  />
+                </View>
+              </View>
+
+              <View style={dynamicStyles.inputGroup}>
+                <Text style={dynamicStyles.inputLabel}>{t("shippingCost")} *</Text>
+                <TextInput
+                  style={dynamicStyles.input}
                   placeholder="0.00"
                   keyboardType="decimal-pad"
                   value={form.watch("shipping")?.toString() || "0"}
@@ -320,66 +402,47 @@ export default function NewOrderScreen() {
                 />
               </View>
 
-              <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>{t('notes')}</Text>
+              <View style={dynamicStyles.inputGroup}>
+                <Text style={dynamicStyles.inputLabel}>{t("discount")}</Text>
                 <TextInput
-                  style={[styles.input, styles.textArea]}
-                  multiline
-                  numberOfLines={3}
-                  placeholder={t('internalNotes')}
-                  value={form.watch("notes")}
-                  onChangeText={(text) => form.setValue("notes", text)}
-                  textAlignVertical="top"
+                  style={dynamicStyles.input}
+                  placeholder="0.00"
+                  keyboardType="decimal-pad"
+                  value={form.watch("discount")?.toString() || "0"}
+                  onChangeText={(text) => {
+                    const num = parseFloat(text) || 0;
+                    form.setValue("discount", num);
+                  }}
                 />
-              </View>
-
-              <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>{t('userNotes')}</Text>
-                <TextInput
-                  style={[styles.input, styles.textArea]}
-                  multiline
-                  numberOfLines={3}
-                  placeholder={t('userNotesPlaceholder')}
-                  value={form.watch("userNotes")}
-                  onChangeText={(text) => form.setValue("userNotes", text)}
-                  textAlignVertical="top"
-                />
-              </View>
-
-              <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>{t('facebookProfile')}</Text>
-                <View style={styles.facebookInput}>
-                  <Text style={styles.facebookIcon}>f</Text>
-                  <TextInput
-                    style={styles.facebookInputField}
-                    placeholder={t('facebookPlaceholder')}
-                    value={form.watch("facebookProfile")}
-                    onChangeText={(text) =>
-                      form.setValue("facebookProfile", text)
-                    }
-                  />
-                </View>
               </View>
             </View>
 
             {/* Order Summary */}
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>{t('orderSummary')}</Text>
-              <View style={styles.summaryRow}>
-                <Text style={styles.summaryLabel}>{t('subtotal')}</Text>
-                <Text style={styles.summaryValue}>
+            <View style={dynamicStyles.section}>
+              <Text style={dynamicStyles.sectionTitle}>{t("orderSummary")}</Text>
+              <View style={dynamicStyles.summaryRow}>
+                <Text style={dynamicStyles.summaryLabel}>{t("subtotal")}</Text>
+                <Text style={dynamicStyles.summaryValue}>
                   JOD {calculateSubtotal().toFixed(2)}
                 </Text>
               </View>
-              <View style={styles.summaryRow}>
-                <Text style={styles.summaryLabel}>{t('shipping')}</Text>
-                <Text style={styles.summaryValue}>
+              <View style={dynamicStyles.summaryRow}>
+                <Text style={dynamicStyles.summaryLabel}>{t("shipping")}</Text>
+                <Text style={dynamicStyles.summaryValue}>
                   JOD {(form.watch("shipping") || 0).toFixed(2)}
                 </Text>
               </View>
-              <View style={[styles.summaryRow, styles.totalRow]}>
-                <Text style={styles.totalLabel}>{t('total')}</Text>
-                <Text style={styles.totalValue}>
+              {(form.watch("discount") || 0) > 0 && (
+                <View style={dynamicStyles.summaryRow}>
+                  <Text style={dynamicStyles.summaryLabel}>{t("discount")}</Text>
+                  <Text style={dynamicStyles.summaryValue}>
+                    -JOD {(form.watch("discount") || 0).toFixed(2)}
+                  </Text>
+                </View>
+              )}
+              <View style={[dynamicStyles.summaryRow, dynamicStyles.totalRow]}>
+                <Text style={dynamicStyles.totalLabel}>{t("total")}</Text>
+                <Text style={dynamicStyles.totalValue}>
                   JOD {calculateTotal().toFixed(2)}
                 </Text>
               </View>
@@ -393,7 +456,7 @@ export default function NewOrderScreen() {
               size="lg"
               className="w-full mt-6"
             >
-              {t('createOrder')}
+              {t("createOrder")}
             </Button>
           </FormProvider>
         </View>
