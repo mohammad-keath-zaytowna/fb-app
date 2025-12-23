@@ -33,13 +33,13 @@ export function formatPriceValue(
  */
 export function formatPrice(
   price: number,
-  currency: CurrencyCode = "USD"
+  currency: CurrencyCode = "JOD"
 ): string {
   const symbol = getCurrencySymbol(currency);
   const formattedPrice = formatPriceValue(price, currency);
   
   // For USD, put symbol before price; for others, put after
-  if (currency === "USD") {
+  if (currency === "JOD") {
     return `${symbol}${formattedPrice}`;
   }
   return `${symbol} ${formattedPrice}`;
@@ -49,5 +49,5 @@ export function formatPrice(
  * Get effective currency from user (uses user's currency or defaults to USD)
  */
 export function getUserCurrency(user: any): CurrencyCode {
-  return user?.currency || "USD";
+  return user?.currency || "JOD";
 }
