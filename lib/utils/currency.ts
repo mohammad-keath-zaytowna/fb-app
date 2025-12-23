@@ -18,6 +18,17 @@ export function getCurrencySymbol(currency: CurrencyCode = "USD"): string  {
 }
 
 /**
+ * Format price value (number only, no currency symbol)
+ * SP currency shows no decimals, others show 2 decimals
+ */
+export function formatPriceValue(
+  price: number,
+  currency: CurrencyCode = "USD"
+): string {
+  return currency === "SP" ? price.toString() : price.toFixed(2);
+}
+
+/**
  * Format price with currency
  */
 export function formatPrice(
@@ -25,7 +36,7 @@ export function formatPrice(
   currency: CurrencyCode = "USD"
 ): string {
   const symbol = getCurrencySymbol(currency);
-  const formattedPrice = price.toFixed(2);
+  const formattedPrice = formatPriceValue(price, currency);
   
   // For USD, put symbol before price; for others, put after
   if (currency === "USD") {

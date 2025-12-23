@@ -3,6 +3,8 @@ import { useCartContext } from "@/contexts/CartContext";
 import { useToast } from "@/contexts/ToastContext";
 import { API_BASE_URL } from "@/lib/api/config";
 import { getProductById } from "@/lib/api/products";
+import { useAuthContext } from "@/contexts/AuthContext";
+import { formatPrice, getUserCurrency } from "@/lib/utils/currency";
 import { Product } from "@/types";
 import { Image } from "expo-image";
 import { router, useLocalSearchParams } from "expo-router";
@@ -29,6 +31,8 @@ export default function ProductDetailScreen() {
   const { addToCart, items, updateQuantity } = useCartContext();
   const toast = useToast();
   const { t } = useTranslation();
+  const { user } = useAuthContext();
+  const currency = getUserCurrency(user);
 
   const cartItem = items.find(
     (item) =>
@@ -113,7 +117,7 @@ export default function ProductDetailScreen() {
           <View style={styles.titleRow}>
             <Text style={styles.productName}>{product.name}</Text>
             <Text style={styles.productPrice}>
-              JOD {product.price.toFixed(2)}
+              {formatPrice(product.price, currency)}
             </Text>
           </View>
           <Text style={styles.productDescription}>

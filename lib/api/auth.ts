@@ -133,3 +133,21 @@ export const resetPasswordApiMethod = async ({
   }
 };
 
+export const getCurrentUser = async (): Promise<User> => {
+  try {
+    const { data } = await apiClient.get("/auth/me");
+    
+    // Update stored user data
+    if (data?.data?.user) {
+      await AsyncStorage.setItem("@auth_user", JSON.stringify(data.data.user));
+    }
+    
+    return data.data.user;
+  } catch (error: any) {
+    const message =
+      error?.response?.data?.message || error?.message || "Failed to fetch user data";
+    throw new Error(message);
+  }
+};
+
+

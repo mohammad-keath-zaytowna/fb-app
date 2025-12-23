@@ -3,6 +3,8 @@ import { Input, InputField } from "@/components/ui/input";
 import { getOrderById, updateOrder } from "@/lib/api/orders";
 import { getProducts } from "@/lib/api/products";
 import { Order, OrderItem, Product } from "@/types";
+import { useAuthContext } from "@/contexts/AuthContext";
+import { formatPrice, getUserCurrency } from "@/lib/utils/currency";
 import { router, useLocalSearchParams } from "expo-router";
 import { ArrowLeft, Minus, Plus, Trash2, X } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
@@ -27,6 +29,8 @@ export default function OrderEditScreen() {
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
     const { t } = useTranslation();
+    const { user } = useAuthContext();
+    const currency = getUserCurrency(user);
 
     // Form state
     const [items, setItems] = useState<OrderItem[]>([]);
@@ -281,7 +285,7 @@ export default function OrderEditScreen() {
                                                     <Text style={styles.itemDetail}>{t("color")}: {item.color}</Text>
                                                 )}
                                                 <Text style={styles.itemPrice}>
-                                                    JOD {item.price.toFixed(2)} {t("each")}
+                                                    {formatPrice(item.price, currency)} {t("each")}
                                                 </Text>
                                             </View>
 
@@ -305,7 +309,7 @@ export default function OrderEditScreen() {
 
                                         <View style={styles.itemActions}>
                                             <Text style={styles.itemTotal}>
-                                                JOD {(item.price * item.count).toFixed(2)}
+                                                {formatPrice(item.price * item.count, currency)}
                                             </Text>
                                             <Pressable
                                                 style={styles.deleteButton}
@@ -360,23 +364,23 @@ export default function OrderEditScreen() {
                             <View style={styles.summaryCard}>
                                 <View style={styles.summaryRow}>
                                     <Text style={styles.summaryLabel}>{t("subtotal")}</Text>
-                                    <Text style={styles.summaryValue}>JOD {subtotal.toFixed(2)}</Text>
+                                    <Text style={styles.summaryValue}>{formatPrice(subtotal, currency)}</Text>
                                 </View>
                                 <View style={styles.summaryRow}>
                                     <Text style={styles.summaryLabel}>{t("shipping")}</Text>
-                                    <Text style={styles.summaryValue}>JOD {(parseFloat(shipping) || 0).toFixed(2)}</Text>
+                                    <Text style={styles.summaryValue}>{formatPrice(parseFloat(shipping) || 0, currency)}</Text>
                                 </View>
                                 {parseFloat(discount) > 0 && (
                                     <View style={styles.summaryRow}>
                                         <Text style={styles.summaryLabel}>{t("discount")}</Text>
                                         <Text style={[styles.summaryValue, { color: "#10B981" }]}>
-                                            -JOD {(parseFloat(discount) || 0).toFixed(2)}
+                                            -{formatPrice(parseFloat(discount) || 0, currency)}
                                         </Text>
                                     </View>
                                 )}
                                 <View style={[styles.summaryRow, styles.summaryTotal]}>
                                     <Text style={styles.summaryTotalLabel}>{t("total")}</Text>
-                                    <Text style={styles.summaryTotalValue}>JOD {total.toFixed(2)}</Text>
+                                    <Text style={styles.summaryTotalValue}>{formatPrice(total, currency)}</Text>
                                 </View>
                             </View>
                         </View>
@@ -464,8 +468,8 @@ export default function OrderEditScreen() {
                                             {products.map((product) => (
                                                 <Picker.Item
                                                     key={product._id}
-                                                    label={`${product.name} - JOD ${product.price.toFixed(2)}`}
-                                                    value={product._id}
+                                                    label={`${product.name} - ${format Price(product.price, currency)}`}
+                                            value={product._id}
                                                 />
                                             ))}
                                         </Picker>
@@ -530,7 +534,7 @@ export default function OrderEditScreen() {
                                         <View style={styles.pricePreview}>
                                             <Text style={styles.pricePreviewLabel}>{t("total")}:</Text>
                                             <Text style={styles.pricePreviewValue}>
-                                                JOD {(selectedProduct.price * newItemQuantity).toFixed(2)}
+                                                {formatPrice(selectedProduct.price * newItemQuantity, currency)}
                                             </Text>
                                         </View>
                                     </>

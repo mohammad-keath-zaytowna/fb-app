@@ -1,6 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { useCartContext } from "@/contexts/CartContext";
 import { API_BASE_URL } from "@/lib/api/config";
+import { useAuthContext } from "@/contexts/AuthContext";
+import { formatPrice, getUserCurrency } from "@/lib/utils/currency";
 import { Image } from "expo-image";
 import { router } from "expo-router";
 import { Minus, Plus, ShoppingCart, Trash2 } from "lucide-react-native";
@@ -12,9 +14,11 @@ import { SafeAreaView } from "react-native-safe-area-context";
 export default function CartScreen() {
   const { items, updateQuantity, removeFromCart, getCartTotal } =
     useCartContext();
-  
+
   const { t } = useTranslation();
   const [refreshing, setRefreshing] = React.useState(false);
+  const { user } = useAuthContext();
+  const currency = getUserCurrency(user);
 
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
@@ -54,7 +58,7 @@ export default function CartScreen() {
         <Text style={styles.headerSubtitle}>{items.length} {t('items')}</Text>
       </View>
 
-      <ScrollView 
+      <ScrollView
         style={styles.listContainer}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} title={t('pullToRefresh')} tintColor="#3B82F6" />
@@ -98,7 +102,7 @@ export default function CartScreen() {
               </View>
               <View style={styles.itemFooter}>
                 <Text style={styles.itemPrice}>
-                  JOD {(item.price * item.quantity).toFixed(2)}
+                  {formatPrice(item.price * item.quantity, currency)}
                 </Text>
                 <View style={styles.quantityControls}>
                   <Pressable
@@ -139,7 +143,7 @@ export default function CartScreen() {
       <View style={styles.footer}>
         <View style={styles.totalRow}>
           <Text style={styles.totalLabel}>{t('total')}</Text>
-          <Text style={styles.totalAmount}>JOD {getCartTotal().toFixed(2)}</Text>
+          <Text style={styles.totalAmount}>{formatPrice(getCartTotal(), currency)}</Text>
         </View>
         <Button
           size="lg"

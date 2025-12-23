@@ -1,6 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { API_BASE_URL } from "@/lib/api/config";
 import { getOrderById } from "@/lib/api/orders";
+import { useAuthContext } from "@/contexts/AuthContext";
+import { formatPrice, formatPriceValue, getUserCurrency } from "@/lib/utils/currency";
 import { Order } from "@/types";
 import { Image } from "expo-image";
 import { router, useLocalSearchParams } from "expo-router";
@@ -26,6 +28,8 @@ export default function OrderDetailScreen() {
   const [userNotes, setUserNotes] = useState("");
   const [facebookProfile, setFacebookProfile] = useState("");
   const { t } = useTranslation();
+  const { user } = useAuthContext();
+  const currency = getUserCurrency(user);
 
   useEffect(() => {
     if (id) {
@@ -143,12 +147,12 @@ export default function OrderDetailScreen() {
                       {product?.name || t("product")}
                     </Text>
                     <Text style={styles.itemPrice}>
-                      JOD {item.price.toFixed(2)}
+                      {formatPrice(item.price, currency)}
                     </Text>
                   </View>
                   <Text style={styles.itemQuantity}>x{item.count}</Text>
                   <Text style={styles.itemTotal}>
-                    JOD {(item.price * item.count).toFixed(2)}
+                    {formatPrice(item.price * item.count, currency)}
                   </Text>
                 </View>
               );
@@ -169,13 +173,13 @@ export default function OrderDetailScreen() {
               <View style={styles.priceRow}>
                 <Text style={styles.priceLabel}>{t("shipping")}</Text>
                 <Text style={styles.priceValue}>
-                  JOD {(order.shipping || 0).toFixed(2)}
+                  {formatPrice(order.shipping || 0, currency)}
                 </Text>
               </View>
               <View style={[styles.priceRow, styles.totalRow]}>
                 <Text style={styles.totalLabel}>{t("total")}</Text>
                 <Text style={styles.totalValue}>
-                  JOD {(order.total || order.totalAmount || 0).toFixed(2)}
+                  {formatPrice(order.total || order.totalAmount || 0, currency)}
                 </Text>
               </View>
             </View>

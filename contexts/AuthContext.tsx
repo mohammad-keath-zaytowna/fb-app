@@ -8,6 +8,8 @@ import React, {
   useState,
 } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { AppState, AppStateStatus } from "react-native";
+import { getCurrentUser } from "@/lib/api/auth";
 
 interface AuthContextType extends AuthState {
   login: (loginData: {
@@ -104,6 +106,35 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     loadStoredAuth();
   }, [loadStoredAuth]);
 
+  // Refetch user data when app becomes active
+  useEffect(() => {
+    const handleAppStateChange = async (nextAppState: AppStateStatus) => {
+      // Only refetch when app comes to foreground and user is authenticated
+      if (nextAppState === "active" && authState.isAuthenticated && authState.user) {
+        try {
+          console.log("App became active, refetching user data...");
+          const updatedUser = await getCurrentUser();
+          setAuthState((prev) => ({
+            ...prev,
+            user: updatedUser,
+          }));
+        } catch (error) {
+          console.error("Error refetching user data:", error);
+          // If token is invalid, logout the user
+          if (error instanceof Error && error.message.includes("token")) {
+            await logout();
+          }
+        }
+      }
+    };
+
+    const subscription = AppState.addEventListener("change", handleAppStateChange);
+
+    return () => {
+      subscription.remove();
+    };
+  }, [authState.isAuthenticated, authState.user]);
+
   const login = async (loginData: {
     user: User;
     accessToken?: string;
@@ -140,7 +171,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         "@auth_token",
         "@auth_refresh_token",
       ]);
-      
+
 
       setAuthState({
         user: null,

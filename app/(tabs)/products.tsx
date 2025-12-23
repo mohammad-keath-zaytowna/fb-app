@@ -17,6 +17,8 @@ import {
 import { useTranslation } from "react-i18next";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useDebounce } from "use-debounce";
+import { getUserCurrency } from "@/lib/utils/currency";
+import { useAuthContext } from "@/contexts/AuthContext";
 
 export default function ProductsScreen() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -24,8 +26,10 @@ export default function ProductsScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const { t } = useTranslation();
+  const { user } = useAuthContext()
   // const [activeFilter, setActiveFilter] = useState<string | null>("new");
   const [searchDebounced] = useDebounce(searchQuery, 200);
+  const currency = getUserCurrency(user);
 
   useEffect(() => {
     loadProducts();
@@ -74,6 +78,7 @@ export default function ProductsScreen() {
       ? item.image
       : `${API_BASE_URL.replace("/api", "")}${item.image}`;
 
+
     return (
       <Pressable
         style={styles.productCard}
@@ -88,7 +93,7 @@ export default function ProductsScreen() {
           <Text style={styles.productName} numberOfLines={1}>
             {item.name}
           </Text>
-          <Text style={styles.productPrice}>JOD {item.price.toFixed(2)}</Text>
+          <Text style={styles.productPrice}>{currency} {currency === 'SP' ? item.price : item.price.toFixed(2)}</Text>
           <Text
             style={[
               styles.productStatus,
@@ -98,12 +103,12 @@ export default function ProductsScreen() {
             {item.status === "active"
               ? t("inStock")
               : item.status === "Low Stock"
-              ? t("lowStock")
-              : item.status === "On Sale"
-              ? t("onSale")
-              : item.status === "Out of Stock"
-              ? t("outOfStock")
-              : item.status || t("newArrival")}
+                ? t("lowStock")
+                : item.status === "On Sale"
+                  ? t("onSale")
+                  : item.status === "Out of Stock"
+                    ? t("outOfStock")
+                    : item.status || t("newArrival")}
           </Text>
         </View>
       </Pressable>
