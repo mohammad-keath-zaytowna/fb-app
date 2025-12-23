@@ -1,11 +1,13 @@
 import { getOrders } from "@/lib/api/orders";
 import { Order } from "@/types";
 import { router } from "expo-router";
-import { Receipt } from "lucide-react-native";
+import { Receipt, Search, X } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
-import { FlatList, Pressable, RefreshControl, StyleSheet, Text, View } from "react-native";
+import { FlatList, Pressable, RefreshControl, StyleSheet, Text, TextInput, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useAuthContext } from "@/contexts/AuthContext";
+import { formatPrice, getUserCurrency } from "@/lib/utils/currency";
 
 type FilterTab = "all" | "pending" | "completed" | "canceled";
 
@@ -14,11 +16,14 @@ export default function OrdersScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [activeTab, setActiveTab] = useState<FilterTab>("all");
+  const [searchQuery, setSearchQuery] = useState("");
   const { t } = useTranslation();
+  const { user } = useAuthContext();
+  const currency = getUserCurrency(user);
 
   useEffect(() => {
     loadOrders();
-  }, [activeTab]);
+  }, [activeTab, searchQuery]);
 
   const loadOrders = async () => {
     setIsLoading(true);
@@ -29,6 +34,7 @@ export default function OrdersScreen() {
         page: 1,
         rowsPerPage: 20,
         status,
+        search: searchQuery || undefined,
       });
       setOrders(response.orders);
     } catch (error) {
@@ -78,7 +84,10 @@ export default function OrdersScreen() {
       </View>
       <View style={styles.orderInfo}>
         <Text style={styles.orderNumber}>{t('order')} #{item._id.slice(-6)}</Text>
-        <Text style={styles.orderPrice}>JOD {(item.total || item.totalAmount || 0).toFixed(2)}</Text>
+        {item.userName && (
+          <Text style={styles.customerName}>Customer: {item.userName}</Text>
+        )}
+        <Text style={styles.orderPrice}>{formatPrice(item.total || item.totalAmount || 0, currency)}</Text>
         <Text style={styles.orderDate}>{formatDate(item.createdAt)}</Text>
       </View>
       <View
@@ -110,6 +119,25 @@ export default function OrdersScreen() {
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>{t('myOrders')}</Text>
+      </View>
+
+      {/* Search Bar */}
+      <View style={styles.searchContainer}>
+        <View style={styles.searchInputContainer}>
+          <Search size={20} color="#9CA3AF" style={styles.searchIcon} />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search by customer name..."
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            placeholderTextColor="#9CA3AF"
+          />
+          {searchQuery.length > 0 && (
+            <Pressable onPress={() => setSearchQuery("")}>
+              <X size={20} color="#9CA3AF" />
+            </Pressable>
+          )}
+        </View>
       </View>
 
       {/* Filter Tabs */}
@@ -199,6 +227,30 @@ const styles = StyleSheet.create({
     borderBottomColor: "#E5E7EB",
     gap: 8,
   },
+  searchContainer: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: "#FFFFFF",
+    borderBottomWidth: 1,
+    borderBottomColor: "#E5E7EB",
+  },
+  searchInputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#F9FAFB",
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    gap: 8,
+  },
+  searchIcon: {
+    marginRight: 4,
+  },
+  searchInput: {
+    flex: 1,
+    paddingVertical: 10,
+    fontSize: 14,
+    color: "#111827",
+  },
   tab: {
     paddingHorizontal: 16,
     paddingVertical: 8,
@@ -244,6 +296,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
     color: "#111827",
+  },
+  customerName: {
+    fontSize: 13,
+    color: "#6B7280",
+    fontWeight: "500",
   },
   orderPrice: {
     fontSize: 18,

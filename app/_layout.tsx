@@ -6,6 +6,7 @@ import {
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import "react-native-reanimated";
+import ToastManager from 'expo-react-native-toastify'
 
 import { useColorScheme } from "@/hooks/use-color-scheme";
 
@@ -32,12 +33,20 @@ export default function RootLayout() {
             <CartProvider>
               <Stack screenOptions={{ headerShown: false }}>
                 <Stack.Screen name="index" />
-                <Stack.Screen name="(auth)" />
+                <Stack.Screen
+                  name="(auth)"
+                  options={{
+                    headerShown: false,
+                    // Prevent going back to auth after login
+                    gestureEnabled: false,
+                  }}
+                />
                 <Stack.Screen name="(tabs)" />
                 <Stack.Screen name="products" />
                 <Stack.Screen name="orders" />
               </Stack>
             </CartProvider>
+            <ToastManager />
             <StatusBar style="auto" />
           </AuthProvider>
         </ThemeProvider>

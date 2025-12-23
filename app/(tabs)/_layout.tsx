@@ -4,14 +4,30 @@ import { useCartContext } from '@/contexts/CartContext';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Tabs } from 'expo-router';
 import { List, Package, Plus, ShoppingBag, User } from 'lucide-react-native';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { BackHandler } from 'react-native';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
   const { getCartCount } = useCartContext();
   const count = getCartCount();
   const { t } = useTranslation();
+
+  // Prevent going back to auth screens after login
+  useEffect(() => {
+    const backAction = () => {
+      // Return true to prevent default back action (going back)
+      return true;
+    };
+
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      backAction
+    );
+
+    return () => backHandler.remove();
+  }, []);
 
   return (
     <Tabs

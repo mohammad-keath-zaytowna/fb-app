@@ -4,6 +4,8 @@ export type User = {
   email: string;
   role: "user" | "admin" | "superAdmin";
   status: "active" | "blocked" | "deleted";
+  currency?: "USD" | "JOD" | "SP";
+  managerId?: string;
   createdAt?: string;
   updatedAt?: string;
 };

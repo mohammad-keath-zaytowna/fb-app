@@ -113,3 +113,34 @@ export const createOrder = async (orderData: {
   }
 };
 
+export const updateOrder = async (
+  orderId: string,
+  orderData: {
+    items?: Array<{
+      prod_id: string;
+      count: number;
+      size?: string;
+      color?: string;
+      price: number;
+    }>;
+    userName?: string;
+    phoneNumber?: string;
+    address?: string;
+    shipping?: number;
+    discount?: number;
+    notes?: string;
+    status?: "pending" | "paid" | "shipped" | "completed" | "cancelled";
+  }
+): Promise<Order> => {
+  try {
+    const { data } = await apiClient.patch(`/orders/${orderId}`, orderData);
+    return data?.data?.order;
+  } catch (error: any) {
+    const message =
+      error?.response?.data?.message ||
+      error?.message ||
+      "Failed to update order";
+    throw new Error(message);
+  }
+};
+

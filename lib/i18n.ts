@@ -2,6 +2,7 @@ import { getLocales } from "expo-localization";
 import i18n from "i18next";
 import "intl-pluralrules";
 import { initReactI18next } from "react-i18next";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export const RESOURCES = {
   en: {
@@ -18,7 +19,7 @@ export const RESOURCES = {
       search: "Search",
       total: "Total",
       items: "items",
-      
+
       // Auth - Login
       welcomeBack: "Welcome back!",
       loginSubtitle: "Log in to your account to continue.",
@@ -29,23 +30,25 @@ export const RESOURCES = {
       forgotPassword: "Forgot password?",
       login: "Login",
       loggingIn: "Logging In...",
-      
+
       // Auth - Forgot Password
       forgotPasswordTitle: "Forgot Password",
-      forgotPasswordDescription: "Enter your email or phone number and we will send you a reset code.",
+      forgotPasswordDescription:
+        "Enter your email or phone number and we will send you a reset code.",
       sendCode: "Send Code",
       backToLogin: "Back to Login",
-      
+
       // Auth - Verification Code
       enterVerificationCode: "Enter verification code",
       verificationCodeDescription: "We sent a code to {{email}}",
       didntReceiveCode: "Didn't receive the code? ",
       resendCode: "Resend code",
       verify: "Verify",
-      
+
       // Auth - Reset Password
       resetPasswordTitle: "Reset Password",
-      resetPasswordDescription: "Create a new, strong password for your account.",
+      resetPasswordDescription:
+        "Create a new, strong password for your account.",
       newPassword: "New Password",
       newPasswordPlaceholder: "Enter your new password",
       confirmNewPassword: "Confirm New Password",
@@ -53,7 +56,7 @@ export const RESOURCES = {
       passwordStrengthWeak: "Weak",
       passwordHelperText: "Must be at least 8 characters.",
       saveNewPassword: "Save new password",
-      
+
       // Products
       products: "Products",
       searchForProducts: "Search for products...",
@@ -62,20 +65,22 @@ export const RESOURCES = {
       onSale: "On Sale",
       outOfStock: "Out of Stock",
       newArrival: "New Arrival",
-      
+
       // Product Detail
       size: "Size",
       color: "Color",
       addToOrder: "Add to Order",
-      productDescription: "Engineered for performance and style, featuring premium materials and responsive design for ultimate comfort.",
-      
+      productDescription:
+        "Engineered for performance and style, featuring premium materials and responsive design for ultimate comfort.",
+
       // Cart
       shoppingCart: "Shopping Cart",
       yourCartIsEmpty: "Your Cart is Empty",
       startAddingProducts: "Start by adding products to your order",
       browseProducts: "Browse Products",
       checkout: "Checkout",
-      
+      addedToCart: "Added to cart",
+
       // Orders
       myOrders: "My Orders",
       all: "All",
@@ -86,7 +91,7 @@ export const RESOURCES = {
       noOrdersYet: "No orders yet",
       noOrdersDescription: "Your past and current orders will appear here.",
       order: "Order",
-      
+
       // Profile
       profile: "Profile",
       accountInformation: "Account Information",
@@ -99,7 +104,7 @@ export const RESOURCES = {
       arabic: "Arabic",
       languageChanged: "Language Changed",
       appWillRestart: "The app will restart to apply the language change.",
-      
+
       // Add Product
       addNewProduct: "Add New Product",
       addPhoto: "Add Photo",
@@ -115,7 +120,7 @@ export const RESOURCES = {
       description: "Description",
       descriptionPlaceholder: "Enter a brief description...",
       saveProduct: "Save Product",
-      
+
       // Alerts
       error: "Error",
       success: "Success",
@@ -125,13 +130,13 @@ export const RESOURCES = {
       productCreatedSuccess: "Product created successfully",
       failedToCreateProduct: "Failed to create product",
       ok: "OK",
-      
+
       // User roles
       user: "User",
       admin: "Admin",
       seller: "Seller",
       customer: "Customer",
-      
+
       // New Order Screen
       newOrder: "New Order",
       orderItems: "Order Items",
@@ -177,7 +182,7 @@ export const RESOURCES = {
       search: "بحث",
       total: "المجموع",
       items: "عناصر",
-      
+
       // Auth - Login
       welcomeBack: "مرحباً بعودتك!",
       loginSubtitle: "قم بتسجيل الدخول إلى حسابك للمتابعة.",
@@ -188,20 +193,21 @@ export const RESOURCES = {
       forgotPassword: "هل نسيت كلمة المرور؟",
       login: "تسجيل الدخول",
       loggingIn: "جاري تسجيل الدخول...",
-      
+
       // Auth - Forgot Password
       forgotPasswordTitle: "نسيت كلمة المرور",
-      forgotPasswordDescription: "أدخل بريدك الإلكتروني أو رقم هاتفك وسنرسل لك رمز إعادة التعيين.",
+      forgotPasswordDescription:
+        "أدخل بريدك الإلكتروني أو رقم هاتفك وسنرسل لك رمز إعادة التعيين.",
       sendCode: "إرسال الرمز",
       backToLogin: "العودة إلى تسجيل الدخول",
-      
+
       // Auth - Verification Code
       enterVerificationCode: "أدخل رمز التحقق",
       verificationCodeDescription: "لقد أرسلنا رمزاً إلى {{email}}",
       didntReceiveCode: "لم تستلم الرمز؟ ",
       resendCode: "إعادة إرسال الرمز",
       verify: "تحقق",
-      
+
       // Auth - Reset Password
       resetPasswordTitle: "إعادة تعيين كلمة المرور",
       resetPasswordDescription: "أنشئ كلمة مرور جديدة وقوية لحسابك.",
@@ -212,7 +218,7 @@ export const RESOURCES = {
       passwordStrengthWeak: "ضعيف",
       passwordHelperText: "يجب أن تتكون من 8 أحرف على الأقل.",
       saveNewPassword: "حفظ كلمة المرور الجديدة",
-      
+
       // Products
       products: "المنتجات",
       searchForProducts: "البحث عن منتجات...",
@@ -221,20 +227,22 @@ export const RESOURCES = {
       onSale: "في التخفيضات",
       outOfStock: "غير متوفر",
       newArrival: "وصول جديد",
-      
+
       // Product Detail
       size: "المقاس",
       color: "اللون",
       addToOrder: "إضافة إلى الطلب",
-      productDescription: "مصمم للأداء والأناقة، يتميز بمواد عالية الجودة وتصميم متجاوب لراحة قصوى.",
-      
+      productDescription:
+        "مصمم للأداء والأناقة، يتميز بمواد عالية الجودة وتصميم متجاوب لراحة قصوى.",
+
       // Cart
       shoppingCart: "سلة التسوق",
       yourCartIsEmpty: "سلة التسوق فارغة",
       startAddingProducts: "ابدأ بإضافة منتجات إلى طلبك",
       browseProducts: "تصفح المنتجات",
       checkout: "إتمام الطلب",
-      
+      addedToCart: "تمت الإضافة إلى السلة",
+
       // Orders
       myOrders: "طلباتي",
       all: "الكل",
@@ -245,7 +253,7 @@ export const RESOURCES = {
       noOrdersYet: "لا توجد طلبات بعد",
       noOrdersDescription: "ستظهر طلباتك السابقة والحالية هنا.",
       order: "طلب",
-      
+
       // Profile
       profile: "الملف الشخصي",
       accountInformation: "معلومات الحساب",
@@ -258,7 +266,7 @@ export const RESOURCES = {
       arabic: "العربية",
       languageChanged: "تم تغيير اللغة",
       appWillRestart: "سيتم إعادة تشغيل التطبيق لتطبيق تغيير اللغة.",
-      
+
       // Add Product
       addNewProduct: "إضافة منتج جديد",
       addPhoto: "إضافة صورة",
@@ -274,7 +282,7 @@ export const RESOURCES = {
       description: "الوصف",
       descriptionPlaceholder: "أدخل وصفاً مختصراً...",
       saveProduct: "حفظ المنتج",
-      
+
       // Alerts
       error: "خطأ",
       success: "نجح",
@@ -284,13 +292,13 @@ export const RESOURCES = {
       productCreatedSuccess: "تم إنشاء المنتج بنجاح",
       failedToCreateProduct: "فشل إنشاء المنتج",
       ok: "حسناً",
-      
+
       // User roles
       user: "مستخدم",
       admin: "مسؤول",
       seller: "بائع",
       customer: "عميل",
-      
+
       // New Order Screen
       newOrder: "طلب جديد",
       orderItems: "عناصر الطلب",
@@ -324,13 +332,29 @@ export const RESOURCES = {
   },
 };
 
-i18n.use(initReactI18next).init({
-  resources: RESOURCES,
-  lng: getLocales()[0]?.languageCode === 'ar' ? 'ar' : 'en',
-  fallbackLng: "en",
-  interpolation: {
-    escapeValue: false,
-  },
-});
+const LANGUAGE_KEY = "@app_language";
 
+const getInitialLanguage = async (): Promise<string> => {
+  try {
+    const stored = await AsyncStorage.getItem(LANGUAGE_KEY);
+    if (stored) return stored;
+  } catch (e) {
+    // ignore storage errors and fallback to device locale
+  }
+  return getLocales()[0]?.languageCode === "ar" ? "ar" : "en";
+};
+
+(async () => {
+  const lng = await getInitialLanguage();
+  await i18n.use(initReactI18next).init({
+    resources: RESOURCES,
+    lng,
+    fallbackLng: "en",
+    interpolation: {
+      escapeValue: false,
+    },
+  });
+})();
+
+export { LANGUAGE_KEY };
 export default i18n;

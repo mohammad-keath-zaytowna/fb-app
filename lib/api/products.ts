@@ -28,6 +28,7 @@ export const getProducts = async (
     const queryParams: Record<string, any> = {
       page: params?.page || 1,
       rowsPerPage: params?.rowsPerPage || 10,
+      status: "active", // Mobile app only shows active products
     };
 
     if (params?.search && params.search.trim() !== "") {
@@ -38,9 +39,8 @@ export const getProducts = async (
       queryParams.category = params.category;
     }
 
-    if (params?.status && params.status.trim() !== "") {
-      queryParams.status = params.status;
-    }
+    // Don't allow overriding status in mobile app
+    // We always want only active products
 
     if (params?.sort) {
       queryParams.sort = params.sort;

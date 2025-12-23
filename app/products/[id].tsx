@@ -7,9 +7,17 @@ import { Image } from "expo-image";
 import { router, useLocalSearchParams } from "expo-router";
 import { ArrowLeft, Minus, Plus } from "lucide-react-native";
 import React, { useCallback, useEffect, useState } from "react";
-import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
+import {
+  Pressable,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import { useTranslation } from "react-i18next";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { Toast } from "expo-react-native-toastify";
 
 export default function ProductDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -58,7 +66,7 @@ export default function ProductDetailScreen() {
         <View
           style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
         >
-          <Text>{t('loading')}</Text>
+          <Text>{t("loading")}</Text>
         </View>
       </SafeAreaView>
     );
@@ -71,7 +79,12 @@ export default function ProductDetailScreen() {
     <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
       <ScrollView
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} title={t('pullToRefresh')} tintColor="#3B82F6" />
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            title={t("pullToRefresh")}
+            tintColor="#3B82F6"
+          />
         }
       >
         {/* Header */}
@@ -98,15 +111,17 @@ export default function ProductDetailScreen() {
         <View style={styles.infoContainer}>
           <View style={styles.titleRow}>
             <Text style={styles.productName}>{product.name}</Text>
-            <Text style={styles.productPrice}>JOD {product.price.toFixed(2)}</Text>
+            <Text style={styles.productPrice}>
+              JOD {product.price.toFixed(2)}
+            </Text>
           </View>
           <Text style={styles.productDescription}>
-            {product.description || t('productDescription')}
+            {product.description || t("productDescription")}
           </Text>
 
           {/* Size Selection */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>{t('size')}</Text>
+            <Text style={styles.sectionTitle}>{t("size")}</Text>
             <View style={styles.optionsContainer}>
               {sizes.map((size) => (
                 <Pressable
@@ -132,7 +147,7 @@ export default function ProductDetailScreen() {
 
           {/* Color Selection */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>{t('color')}</Text>
+            <Text style={styles.sectionTitle}>{t("color")}</Text>
             <View style={styles.optionsContainer}>
               {colors.map((color) => (
                 <Pressable
@@ -186,7 +201,8 @@ export default function ProductDetailScreen() {
             <Button
               size="lg"
               className="w-full mt-6"
-              onPress={() =>
+              onPress={() => {
+                Toast.success(t("addedToCart"));
                 addToCart({
                   id: product._id,
                   name: product.name,
@@ -195,10 +211,10 @@ export default function ProductDetailScreen() {
                   color: selectedColor,
                   price: product.price,
                   quantity: 1,
-                })
-              }
+                });
+              }}
             >
-              {t('addToOrder')}
+              {t("addToOrder")}
             </Button>
           )}
         </View>

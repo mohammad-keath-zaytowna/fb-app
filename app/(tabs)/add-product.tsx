@@ -4,8 +4,9 @@ import { createProduct } from "@/lib/api/products";
 import { productFormSchema } from "@/lib/forms/product";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as ImagePicker from "expo-image-picker";
-import { ImagePlus } from "lucide-react-native";
+import { ImagePlus, Plus, X } from "lucide-react-native";
 import React, { useState } from "react";
+import { Input, InputField } from "@/components/ui/input";
 import { FormProvider, useForm } from "react-hook-form";
 import { Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -15,6 +16,10 @@ import { useTranslation } from "react-i18next";
 export default function AddProductScreen() {
   const [isLoading, setIsLoading] = useState(false);
   const [image, setImage] = useState<any>(null);
+  const [colors, setColors] = useState<string[]>([]);
+  const [sizes, setSizes] = useState<string[]>([]);
+  const [newColor, setNewColor] = useState("");
+  const [newSize, setNewSize] = useState("");
   const { t } = useTranslation();
 
   const form = useForm<z.infer<typeof productFormSchema>>({
@@ -58,6 +63,8 @@ export default function AddProductScreen() {
       await createProduct({
         ...data,
         image,
+        colors,
+        sizes,
       });
       Alert.alert(t('success'), t('productCreatedSuccess'), [
         {
@@ -154,6 +161,89 @@ export default function AddProductScreen() {
                     type="text"
                   />
                 </View>
+
+                {/* Colors */}
+                <View style={{ marginTop: 16 }}>
+                  <Text style={styles.sectionTitle}>Colors</Text>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                    <Input style={{ flex: 1 }}>
+                      <InputField
+                        value={newColor}
+                        onChangeText={setNewColor}
+                        placeholder="#ff0000 or Red"
+                        style={{ flex: 1, minWidth: 20 }}
+                        onSubmitEditing={() => {
+                          if (newColor.trim()) {
+                            if (!colors.includes(newColor.trim())) setColors([...colors, newColor.trim()]);
+                            setNewColor("");
+                          }
+                        }}
+                      />
+                    </Input>
+                    <Button type="button" variant="outline" onPress={() => {
+                      if (newColor.trim()) {
+                        if (!colors.includes(newColor.trim())) setColors([...colors, newColor.trim()]);
+                        setNewColor("");
+                      }
+                    }}>
+                      <Plus />
+                    </Button>
+                  </View>
+                  {colors.length > 0 && (
+                    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 8 }}>
+                      {colors.map((c) => (
+                        <View key={c} style={styles.tag}>
+                          <View style={[styles.colorSwatch, { backgroundColor: c }]} />
+                          <Text style={{ marginHorizontal: 6 }}>{c}</Text>
+                          <Pressable onPress={() => setColors(colors.filter(x => x !== c))}>
+                            <X />
+                          </Pressable>
+                        </View>
+                      ))}
+                    </View>
+                  )}
+                </View>
+
+                {/* Sizes */}
+                <View style={{ marginTop: 16 }}>
+                  <Text style={styles.sectionTitle}>Sizes</Text>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                    <Input style={{ flex: 1 }}>
+                      <InputField
+                        value={newSize}
+                        onChangeText={setNewSize}
+                        placeholder="S, M, L"
+                        style={{ flex: 1 }}
+                        onSubmitEditing={() => {
+                          if (newSize.trim()) {
+                            if (!sizes.includes(newSize.trim())) setSizes([...sizes, newSize.trim()]);
+                            setNewSize("");
+                          }
+                        }}
+                      />
+                    </Input>
+                    <Button type="button" variant="outline" onPress={() => {
+                      if (newSize.trim()) {
+                        if (!sizes.includes(newSize.trim())) setSizes([...sizes, newSize.trim()]);
+                        setNewSize("");
+                      }
+                    }}>
+                      <Plus />
+                    </Button>
+                  </View>
+                  {sizes.length > 0 && (
+                    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 8 }}>
+                      {sizes.map((s) => (
+                        <View key={s} style={styles.tag}>
+                          <Text style={{ marginHorizontal: 6 }}>{s}</Text>
+                          <Pressable onPress={() => setSizes(sizes.filter(x => x !== s))}>
+                            <X />
+                          </Pressable>
+                        </View>
+                      ))}
+                    </View>
+                  )}
+                </View>
               </View>
 
               {/* Action Button */}
@@ -232,6 +322,21 @@ const styles = StyleSheet.create({
   },
   form: {
     marginBottom: 24,
+  },
+  tag: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 8,
+    paddingVertical: 6,
+    borderRadius: 8,
+    backgroundColor: '#F3F4F6',
+  },
+  colorSwatch: {
+    width: 16,
+    height: 16,
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
   },
 });
 

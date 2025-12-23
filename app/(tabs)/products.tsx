@@ -96,14 +96,14 @@ export default function ProductsScreen() {
             ]}
           >
             {item.status === "active"
-              ? t('inStock')
+              ? t("inStock")
               : item.status === "Low Stock"
-                ? t('lowStock')
-                : item.status === "On Sale"
-                  ? t('onSale')
-                  : item.status === "Out of Stock"
-                    ? t('outOfStock')
-                    : item.status || t('newArrival')}
+              ? t("lowStock")
+              : item.status === "On Sale"
+              ? t("onSale")
+              : item.status === "Out of Stock"
+              ? t("outOfStock")
+              : item.status || t("newArrival")}
           </Text>
         </View>
       </Pressable>
@@ -111,10 +111,10 @@ export default function ProductsScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
+    <SafeAreaView style={styles.container} edges={["top"]}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>{t('products')}</Text>
+        <Text style={styles.headerTitle}>{t("products")}</Text>
       </View>
 
       {/* Search Bar */}
@@ -122,7 +122,7 @@ export default function ProductsScreen() {
         <Search size={20} color="#9CA3AF" />
         <TextInput
           style={styles.searchInput}
-          placeholder={t('searchForProducts')}
+          placeholder={t("searchForProducts")}
           value={searchQuery}
           onChangeText={(text) => setSearchQuery(text)}
         />
@@ -174,7 +174,7 @@ export default function ProductsScreen() {
       {/* Products List */}
       {isLoading ? (
         <View style={styles.loadingContainer}>
-          <Text>{t('loading')}</Text>
+          <Text>{t("loading")}</Text>
         </View>
       ) : (
         <FlatList
@@ -184,7 +184,12 @@ export default function ProductsScreen() {
           contentContainerStyle={styles.productsList}
           showsVerticalScrollIndicator={false}
           refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} title={t('pullToRefresh')} tintColor="#3B82F6" />
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              title={t("pullToRefresh")}
+              tintColor="#3B82F6"
+            />
           }
         />
       )}

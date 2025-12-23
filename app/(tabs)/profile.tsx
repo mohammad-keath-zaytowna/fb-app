@@ -3,18 +3,29 @@ import { useAuthContext } from "@/contexts/AuthContext";
 import { router } from "expo-router";
 import { Mail, Package, User } from "lucide-react-native";
 import React from "react";
-import { ScrollView, StyleSheet, Text, View, Pressable, Alert } from "react-native";
+import {
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+  Pressable,
+  Alert,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useTranslation } from "react-i18next";
 import { useRTL } from "@/components/rtl-view";
 import { useDirection } from "@/components/direction-provider";
-import * as Updates from 'expo-updates';
+import * as Updates from "expo-updates";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { LANGUAGE_KEY } from "@/lib/i18n";
+import { useCartContext } from "@/contexts/CartContext";
 
 export default function ProfileScreen() {
   const { user, logout } = useAuthContext();
   const { t, i18n } = useTranslation();
   const isRTL = useRTL(); // This hook will handle RTL updates
   const { getDirectionAwareStyle } = useDirection();
+  const { clearCart } = useCartContext();
 
   // Create direction-aware styles
   const dynamicStyles = {
@@ -45,35 +56,39 @@ export default function ProfileScreen() {
 
   const handleLogout = async () => {
     await logout();
+    clearCart();
     router.replace("/(auth)/login");
   };
 
   const changeLanguage = async (lang: string) => {
-    console.log('Before changeLanguage:', i18n.language);
     try {
+      // persist selection so it survives app reload
+      try {
+        await AsyncStorage.setItem(LANGUAGE_KEY, lang);
+      } catch (e) {
+        console.warn("Failed to persist language choice", e);
+      }
       await i18n.changeLanguage(lang);
-      console.log('After changeLanguage:', i18n.language);
-      
+
       // Show alert and restart app for RTL changes to take effect
-      Alert.alert(
-        t('languageChanged'),
-        t('appWillRestart'),
-        [
-          {
-            text: t('ok'),
-            onPress: async () => {
-              try {
-                await Updates.reloadAsync();
-              } catch (error) {
-                console.error('Failed to restart app:', error);
-                Alert.alert('Error', 'Failed to restart app. Please restart manually.');
-              }
-            },
+      Alert.alert(t("languageChanged"), t("appWillRestart"), [
+        {
+          text: t("ok"),
+          onPress: async () => {
+            try {
+              await Updates.reloadAsync();
+            } catch (error) {
+              console.error("Failed to restart app:", error);
+              Alert.alert(
+                "Error",
+                "Failed to restart app. Please restart manually."
+              );
+            }
           },
-        ]
-      );
+        },
+      ]);
     } catch (error) {
-      console.error('Error changing language:', error);
+      console.error("Error changing language:", error);
     }
   };
 
@@ -83,7 +98,7 @@ export default function ProfileScreen() {
         <View style={dynamicStyles.content}>
           {/* Header */}
           <View style={dynamicStyles.header}>
-            <Text style={dynamicStyles.headerTitle}>{t('profile')}</Text>
+            <Text style={dynamicStyles.headerTitle}>{t("profile")}</Text>
           </View>
 
           {/* User Info Card */}
@@ -105,15 +120,19 @@ export default function ProfileScreen() {
 
           {/* User Details */}
           <View style={dynamicStyles.card}>
-            <Text style={dynamicStyles.sectionTitle}>{t('accountInformation')}</Text>
+            <Text style={dynamicStyles.sectionTitle}>
+              {t("accountInformation")}
+            </Text>
 
             <View style={dynamicStyles.infoRow}>
               <View style={dynamicStyles.infoIcon}>
                 <User size={20} color="#6B7280" />
               </View>
               <View style={dynamicStyles.infoContent}>
-                <Text style={dynamicStyles.infoLabel}>{t('name')}</Text>
-                <Text style={dynamicStyles.infoValue}>{user?.name || "N/A"}</Text>
+                <Text style={dynamicStyles.infoLabel}>{t("name")}</Text>
+                <Text style={dynamicStyles.infoValue}>
+                  {user?.name || "N/A"}
+                </Text>
               </View>
             </View>
 
@@ -122,8 +141,10 @@ export default function ProfileScreen() {
                 <Mail size={20} color="#6B7280" />
               </View>
               <View style={dynamicStyles.infoContent}>
-                <Text style={dynamicStyles.infoLabel}>{t('email')}</Text>
-                <Text style={dynamicStyles.infoValue}>{user?.email || "N/A"}</Text>
+                <Text style={dynamicStyles.infoLabel}>{t("email")}</Text>
+                <Text style={dynamicStyles.infoValue}>
+                  {user?.email || "N/A"}
+                </Text>
               </View>
             </View>
 
@@ -132,9 +153,9 @@ export default function ProfileScreen() {
                 <Package size={20} color="#6B7280" />
               </View>
               <View style={dynamicStyles.infoContent}>
-                <Text style={dynamicStyles.infoLabel}>{t('role')}</Text>
+                <Text style={dynamicStyles.infoLabel}>{t("role")}</Text>
                 <Text style={dynamicStyles.infoValue}>
-                  {t(user?.role || 'user')}
+                  {t(user?.role || "user")}
                 </Text>
               </View>
             </View>
@@ -142,38 +163,40 @@ export default function ProfileScreen() {
 
           {/* Language Switcher */}
           <View style={dynamicStyles.card}>
-            <Text style={dynamicStyles.sectionTitle}>{t('language')}</Text>
+            <Text style={dynamicStyles.sectionTitle}>{t("language")}</Text>
             <View style={dynamicStyles.languageContainer}>
               <Pressable
                 style={[
                   dynamicStyles.languageButton,
-                  i18n.language === 'en' && dynamicStyles.languageButtonActive,
+                  i18n.language === "en" && dynamicStyles.languageButtonActive,
                 ]}
-                onPress={() => changeLanguage('en')}
+                onPress={() => changeLanguage("en")}
               >
                 <Text
                   style={[
                     dynamicStyles.languageButtonText,
-                    i18n.language === 'en' && dynamicStyles.languageButtonTextActive,
+                    i18n.language === "en" &&
+                      dynamicStyles.languageButtonTextActive,
                   ]}
                 >
-                  {t('english')}
+                  {t("english")}
                 </Text>
               </Pressable>
               <Pressable
                 style={[
                   dynamicStyles.languageButton,
-                  i18n.language === 'ar' && dynamicStyles.languageButtonActive,
+                  i18n.language === "ar" && dynamicStyles.languageButtonActive,
                 ]}
-                onPress={() => changeLanguage('ar')}
+                onPress={() => changeLanguage("ar")}
               >
                 <Text
                   style={[
                     dynamicStyles.languageButtonText,
-                    i18n.language === 'ar' && dynamicStyles.languageButtonTextActive,
+                    i18n.language === "ar" &&
+                      dynamicStyles.languageButtonTextActive,
                   ]}
                 >
-                  {t('arabic')}
+                  {t("arabic")}
                 </Text>
               </Pressable>
             </View>
@@ -187,7 +210,7 @@ export default function ProfileScreen() {
               className="w-full"
               onPress={handleLogout}
             >
-              {t('logout')}
+              {t("logout")}
             </Button>
           </View>
         </View>

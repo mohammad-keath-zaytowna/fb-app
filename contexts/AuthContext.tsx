@@ -140,6 +140,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         "@auth_token",
         "@auth_refresh_token",
       ]);
+      
 
       setAuthState({
         user: null,

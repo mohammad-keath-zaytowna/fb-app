@@ -6,5 +6,7 @@ export const productFormSchema = z.object({
   price: z.coerce.number().positive("Price must be positive"),
   description: z.string().optional(),
   image: z.any().optional(),
+  colors: z.array(z.string()).optional(),
+  sizes: z.array(z.string()).optional(),
 });
 
