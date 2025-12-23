@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { useCartContext } from "@/contexts/CartContext";
+import { useToast } from "@/contexts/ToastContext";
 import { API_BASE_URL } from "@/lib/api/config";
 import { getProductById } from "@/lib/api/products";
 import { Product } from "@/types";
@@ -17,7 +18,6 @@ import {
 } from "react-native";
 import { useTranslation } from "react-i18next";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Toast } from "expo-react-native-toastify";
 
 export default function ProductDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -27,6 +27,7 @@ export default function ProductDetailScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const { addToCart, items, updateQuantity } = useCartContext();
+  const toast = useToast();
   const { t } = useTranslation();
 
   const cartItem = items.find(
@@ -202,7 +203,6 @@ export default function ProductDetailScreen() {
               size="lg"
               className="w-full mt-6"
               onPress={() => {
-                Toast.success(t("addedToCart"));
                 addToCart({
                   id: product._id,
                   name: product.name,
@@ -212,6 +212,7 @@ export default function ProductDetailScreen() {
                   price: product.price,
                   quantity: 1,
                 });
+                toast.success(t("addedToCart"));
               }}
             >
               {t("addToOrder")}

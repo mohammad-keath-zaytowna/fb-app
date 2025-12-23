@@ -59,7 +59,7 @@ export default function OrderDetailScreen() {
         <View
           style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
         >
-          <Text>Loading...</Text>
+          <Text>{t("loading")}</Text>
         </View>
       </SafeAreaView>
     );
@@ -91,16 +91,16 @@ export default function OrderDetailScreen() {
           <Pressable onPress={() => router.back()}>
             <ArrowLeft size={24} color="#111827" />
           </Pressable>
-          <Text style={styles.headerTitle}>Order Details</Text>
-          <Pressable>
-            <MoreVertical size={24} color="#111827" />
+          <Text style={styles.headerTitle}>{t("orderDetails")}</Text>
+          <Pressable onPress={() => router.push(`/orders/edit/${id}`)}>
+            <Text style={{ color: "#3B82F6", fontWeight: "600" }}>{t("edit")}</Text>
           </Pressable>
         </View>
 
         <View style={styles.content}>
           {/* Order ID and Status */}
           <View style={styles.orderHeader}>
-            <Text style={styles.orderId}>Order ID: #{order._id.slice(-5)}</Text>
+            <Text style={styles.orderId}>{t("order")} ID: #{order._id.slice(-5)}</Text>
             <View
               style={[
                 styles.statusBadge,
@@ -120,7 +120,7 @@ export default function OrderDetailScreen() {
 
           {/* Items Ordered */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Items Ordered</Text>
+            <Text style={styles.sectionTitle}>{t("itemsOrdered")}</Text>
             {order.items.map((item, index) => {
               const product =
                 typeof item.prod_id === "object" ? item.prod_id : null;
@@ -131,9 +131,8 @@ export default function OrderDetailScreen() {
                       uri: product?.image
                         ? product.image.startsWith("http")
                           ? product.image
-                          : `${API_BASE_URL.replace("/api", "")}${
-                              product.image
-                            }`
+                          : `${API_BASE_URL.replace("/api", "")}${product.image
+                          }`
                         : "https://via.placeholder.com/80",
                     }}
                     style={styles.itemImage}
@@ -141,7 +140,7 @@ export default function OrderDetailScreen() {
                   />
                   <View style={styles.itemInfo}>
                     <Text style={styles.itemName} numberOfLines={1}>
-                      {product?.name || "Product"}
+                      {product?.name || t("product")}
                     </Text>
                     <Text style={styles.itemPrice}>
                       JOD {item.price.toFixed(2)}
@@ -158,7 +157,7 @@ export default function OrderDetailScreen() {
             {/* Price Summary */}
             <View style={styles.priceSummary}>
               <View style={styles.priceRow}>
-                <Text style={styles.priceLabel}>Subtotal</Text>
+                <Text style={styles.priceLabel}>{t("subtotal")}</Text>
                 <Text style={styles.priceValue}>
                   JOD{" "}
                   {(
@@ -168,13 +167,13 @@ export default function OrderDetailScreen() {
                 </Text>
               </View>
               <View style={styles.priceRow}>
-                <Text style={styles.priceLabel}>Shipping</Text>
+                <Text style={styles.priceLabel}>{t("shipping")}</Text>
                 <Text style={styles.priceValue}>
                   JOD {(order.shipping || 0).toFixed(2)}
                 </Text>
               </View>
               <View style={[styles.priceRow, styles.totalRow]}>
-                <Text style={styles.totalLabel}>Total</Text>
+                <Text style={styles.totalLabel}>{t("total")}</Text>
                 <Text style={styles.totalValue}>
                   JOD {(order.total || order.totalAmount || 0).toFixed(2)}
                 </Text>

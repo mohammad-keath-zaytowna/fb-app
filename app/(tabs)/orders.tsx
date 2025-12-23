@@ -85,7 +85,7 @@ export default function OrdersScreen() {
       <View style={styles.orderInfo}>
         <Text style={styles.orderNumber}>{t('order')} #{item._id.slice(-6)}</Text>
         {item.userName && (
-          <Text style={styles.customerName}>Customer: {item.userName}</Text>
+          <Text style={styles.customerName}>{t("customer")}: {item.userName}</Text>
         )}
         <Text style={styles.orderPrice}>{formatPrice(item.total || item.totalAmount || 0, currency)}</Text>
         <Text style={styles.orderDate}>{formatDate(item.createdAt)}</Text>
@@ -127,7 +127,7 @@ export default function OrdersScreen() {
           <Search size={20} color="#9CA3AF" style={styles.searchIcon} />
           <TextInput
             style={styles.searchInput}
-            placeholder="Search by customer name..."
+            placeholder={t("searchByCustomerName")}
             value={searchQuery}
             onChangeText={setSearchQuery}
             placeholderTextColor="#9CA3AF"
