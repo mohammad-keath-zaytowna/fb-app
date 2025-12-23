@@ -468,8 +468,8 @@ export default function OrderEditScreen() {
                                             {products.map((product) => (
                                                 <Picker.Item
                                                     key={product._id}
-                                                    label={`${product.name} - ${format Price(product.price, currency)}`}
-                                            value={product._id}
+                                                    label={`${product.name} - ${formatPrice(product.price, currency)}`}
+                                                    value={product._id}
                                                 />
                                             ))}
                                         </Picker>
