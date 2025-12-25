@@ -13,7 +13,8 @@
       "supportsRTL": false,
       "bundleIdentifier": "online.munjiz",
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSPhotoLibraryUsageDescription": "This app needs access to photo library to select and share documents for legal services."
       }
     },
     "android": {
