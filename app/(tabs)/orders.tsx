@@ -3,7 +3,7 @@ import { Order } from "@/types";
 import { router } from "expo-router";
 import { Receipt, Search, X } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
-import { FlatList, Pressable, RefreshControl, StyleSheet, Text, TextInput, View } from "react-native";
+import { FlatList, Pressable, RefreshControl, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useAuthContext } from "@/contexts/AuthContext";
@@ -115,89 +115,91 @@ export default function OrdersScreen() {
   );
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>{t('myOrders')}</Text>
-      </View>
-
-      {/* Search Bar */}
-      <View style={styles.searchContainer}>
-        <View style={styles.searchInputContainer}>
-          <Search size={20} color="#9CA3AF" style={styles.searchIcon} />
-          <TextInput
-            style={styles.searchInput}
-            placeholder={t("searchByCustomerName")}
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            placeholderTextColor="#9CA3AF"
-          />
-          {searchQuery.length > 0 && (
-            <Pressable onPress={() => setSearchQuery("")}>
-              <X size={20} color="#9CA3AF" />
-            </Pressable>
-          )}
+    <ScrollView style={styles.container}>
+      <SafeAreaView style={styles.container} edges={['top']}>
+        {/* Header */}
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>{t('myOrders')}</Text>
         </View>
-      </View>
 
-      {/* Filter Tabs */}
-      <View style={styles.tabsContainer}>
-        {(
-          [
-            { key: "all", label: t('all') },
-            { key: "pending", label: t('pending') },
-            { key: "completed", label: t('completed') },
-            { key: "canceled", label: t('canceled') },
-          ] as Array<{ key: FilterTab; label: string }>
-        ).map((tab) => (
-          <Pressable
-            key={tab.key}
-            style={[
-              styles.tab,
-              activeTab === tab.key && styles.tabActive,
-            ]}
-            onPress={() => setActiveTab(tab.key)}
-          >
-            <Text
-              style={[
-                styles.tabText,
-                activeTab === tab.key && styles.tabTextActive,
-              ]}
-            >
-              {tab.label}
-            </Text>
-          </Pressable>
-        ))}
-      </View>
-
-      {/* Orders List */}
-      {isLoading ? (
-        <View style={styles.loadingContainer}>
-          <Text>{t('loading')}</Text>
-        </View>
-      ) : orders.length === 0 ? (
-        <View style={styles.emptyContainer}>
-          <View style={styles.emptyIcon}>
-            <Text style={styles.emptyIconText}>🛍️</Text>
+        {/* Search Bar */}
+        <View style={styles.searchContainer}>
+          <View style={styles.searchInputContainer}>
+            <Search size={20} color="#9CA3AF" style={styles.searchIcon} />
+            <TextInput
+              style={styles.searchInput}
+              placeholder={t("searchByCustomerName")}
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              placeholderTextColor="#9CA3AF"
+            />
+            {searchQuery.length > 0 && (
+              <Pressable onPress={() => setSearchQuery("")}>
+                <X size={20} color="#9CA3AF" />
+              </Pressable>
+            )}
           </View>
-          <Text style={styles.emptyTitle}>{t('noOrdersYet')}</Text>
-          <Text style={styles.emptySubtitle}>
-            {t('noOrdersDescription')}
-          </Text>
         </View>
-      ) : (
-        <FlatList
-          data={orders}
-          renderItem={renderOrder}
-          keyExtractor={(item) => item._id}
-          contentContainerStyle={styles.ordersList}
-          showsVerticalScrollIndicator={false}
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} title={t('pullToRefresh')} tintColor="#3B82F6" />
-          }
-        />
-      )}
-    </SafeAreaView>
+
+        {/* Filter Tabs */}
+        <View style={styles.tabsContainer}>
+          {(
+            [
+              { key: "all", label: t('all') },
+              { key: "pending", label: t('pending') },
+              { key: "completed", label: t('completed') },
+              { key: "cancelled", label: t('canceled') },
+            ] as Array<{ key: FilterTab; label: string }>
+          ).map((tab) => (
+            <Pressable
+              key={tab.key}
+              style={[
+                styles.tab,
+                activeTab === tab.key && styles.tabActive,
+              ]}
+              onPress={() => setActiveTab(tab.key)}
+            >
+              <Text
+                style={[
+                  styles.tabText,
+                  activeTab === tab.key && styles.tabTextActive,
+                ]}
+              >
+                {tab.label}
+              </Text>
+            </Pressable>
+          ))}
+        </View>
+
+        {/* Orders List */}
+        {isLoading ? (
+          <View style={styles.loadingContainer}>
+            <Text>{t('loading')}</Text>
+          </View>
+        ) : orders.length === 0 ? (
+          <View style={styles.emptyContainer}>
+            <View style={styles.emptyIcon}>
+              <Text style={styles.emptyIconText}>🛍️</Text>
+            </View>
+            <Text style={styles.emptyTitle}>{t('noOrdersYet')}</Text>
+            <Text style={styles.emptySubtitle}>
+              {t('noOrdersDescription')}
+            </Text>
+          </View>
+        ) : (
+          <FlatList
+            data={orders}
+            renderItem={renderOrder}
+            keyExtractor={(item) => item._id}
+            contentContainerStyle={styles.ordersList}
+            showsVerticalScrollIndicator={false}
+            refreshControl={
+              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} title={t('pullToRefresh')} tintColor="#3B82F6" />
+            }
+          />
+        )}
+      </SafeAreaView>
+    </ScrollView>
   );
 }
 

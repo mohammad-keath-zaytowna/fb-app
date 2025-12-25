@@ -41,10 +41,10 @@ export default function AddProductScreen() {
     }
 
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: ['images'],
       allowsEditing: true,
       aspect: [4, 3],
-      quality: 1,
+      quality: 0.4,
     });
 
     if (!result.canceled && result.assets[0]) {
@@ -164,7 +164,7 @@ export default function AddProductScreen() {
 
                 {/* Colors */}
                 <View style={{ marginTop: 16 }}>
-                  <Text style={styles.sectionTitle}>Colors</Text>
+                  <Text style={styles.sectionTitle}>{t('colors')}</Text>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                     <Input style={{ flex: 1 }}>
                       <InputField
@@ -172,6 +172,7 @@ export default function AddProductScreen() {
                         onChangeText={setNewColor}
                         placeholder="#ff0000 or Red"
                         style={{ flex: 1, minWidth: 20 }}
+                        autoCapitalize="none"
                         onSubmitEditing={() => {
                           if (newColor.trim()) {
                             if (!colors.includes(newColor.trim())) setColors([...colors, newColor.trim()]);

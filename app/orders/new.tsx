@@ -23,6 +23,8 @@ import { useTranslation } from "react-i18next";
 import * as z from "zod";
 import { useCartContext } from "@/contexts/CartContext";
 import { useDirection } from "@/components/direction-provider";
+import { formatPrice, getUserCurrency } from "@/lib/utils/currency";
+import { useAuthContext } from "@/contexts/AuthContext";
 
 export default function NewOrderScreen() {
   const {
@@ -50,6 +52,8 @@ export default function NewOrderScreen() {
   const [isLoadingProduct, setIsLoadingProduct] = useState(false);
   const { t } = useTranslation();
   const { getDirectionAwareStyle } = useDirection();
+  const { user } = useAuthContext()
+  const currency = getUserCurrency(user);
 
   // Create dynamic styles that respect direction
   const dynamicStyles = {
@@ -244,7 +248,7 @@ export default function NewOrderScreen() {
                     <View style={dynamicStyles.itemDetails}>
                       <Text style={dynamicStyles.itemName}>{item.name}</Text>
                       <Text style={dynamicStyles.itemPrice}>
-                        JOD {item.price.toFixed(2)}
+                        {formatPrice(item.price, currency)}
                       </Text>
                       {(item.size || item.color) && (
                         <Text style={dynamicStyles.itemVariant}>
@@ -269,7 +273,7 @@ export default function NewOrderScreen() {
                         </Pressable>
                       </View>
                       <Text style={dynamicStyles.itemTotal}>
-                        JOD {(item.price * item.quantity).toFixed(2)}
+                        {formatPrice(item.price * item.quantity, currency)}
                       </Text>
                       <Pressable
                         style={dynamicStyles.removeButton}
@@ -423,27 +427,27 @@ export default function NewOrderScreen() {
               <View style={dynamicStyles.summaryRow}>
                 <Text style={dynamicStyles.summaryLabel}>{t("subtotal")}</Text>
                 <Text style={dynamicStyles.summaryValue}>
-                  JOD {calculateSubtotal().toFixed(2)}
+                  {formatPrice(calculateSubtotal(), currency)}
                 </Text>
               </View>
               <View style={dynamicStyles.summaryRow}>
                 <Text style={dynamicStyles.summaryLabel}>{t("shipping")}</Text>
                 <Text style={dynamicStyles.summaryValue}>
-                  JOD {(form.watch("shipping") || 0).toFixed(2)}
+                  {formatPrice(form.watch("shipping") || 0, currency)}
                 </Text>
               </View>
               {(form.watch("discount") || 0) > 0 && (
                 <View style={dynamicStyles.summaryRow}>
                   <Text style={dynamicStyles.summaryLabel}>{t("discount")}</Text>
                   <Text style={dynamicStyles.summaryValue}>
-                    -JOD {(form.watch("discount") || 0).toFixed(2)}
+                    - {formatPrice(form.watch("discount") || 0, currency)}
                   </Text>
                 </View>
               )}
               <View style={[dynamicStyles.summaryRow, dynamicStyles.totalRow]}>
                 <Text style={dynamicStyles.totalLabel}>{t("total")}</Text>
                 <Text style={dynamicStyles.totalValue}>
-                  JOD {calculateTotal().toFixed(2)}
+                  {formatPrice(calculateTotal(), currency)}
                 </Text>
               </View>
             </View>
