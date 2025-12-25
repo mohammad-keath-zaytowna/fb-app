@@ -91,12 +91,12 @@ export default function LoginScreen() {
                     type="password"
                     showPasswordToggle
                   />
-                  <Pressable
+                  {/* <Pressable
                     onPress={() => router.push("/(auth)/forgot-password")}
                     style={styles.forgotPasswordLink}
                   >
                     <Text style={styles.forgotPasswordText}>{t('forgotPassword')}</Text>
-                  </Pressable>
+                  </Pressable> */}
                 </View>
 
                 <Button
