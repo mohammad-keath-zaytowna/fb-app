@@ -20,6 +20,7 @@ import {
 } from "react-native";
 import { useTranslation } from "react-i18next";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { size } from "zod";
 
 export default function ProductDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -155,17 +156,22 @@ export default function ProductDetailScreen() {
             <Text style={styles.sectionTitle}>{t("color")}</Text>
             <View style={styles.optionsContainer}>
               {colors.map((color) => (
-                <Pressable
+                  <Pressable
                   key={color}
                   style={[
-                    styles.colorButton,
-                    selectedColor === color && styles.colorButtonActive,
+                    styles.optionButton,
+                    selectedColor === color && styles.optionButtonActive,
                   ]}
                   onPress={() => setSelectedColor(color)}
                 >
-                  <View
-                    style={[styles.colorCircle, { backgroundColor: color }]}
-                  />
+                  <Text
+                    style={[
+                      styles.optionText,
+                      selectedColor === color && styles.optionTextActive,
+                    ]}
+                  >
+                    {color}
+                  </Text>
                 </Pressable>
               ))}
             </View>
