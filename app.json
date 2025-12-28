@@ -10,7 +10,6 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "supportsRTL": false,
       "bundleIdentifier": "online.munjiz",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
@@ -24,8 +23,7 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "online.munjiz",
-      "supportsRTL": false
+      "package": "online.munjiz"
     },
     "web": {
       "output": "static",

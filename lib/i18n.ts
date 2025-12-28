@@ -65,6 +65,8 @@ export const RESOURCES = {
       onSale: "On Sale",
       outOfStock: "Out of Stock",
       newArrival: "New Arrival",
+      sizes: "Sizes",
+      colors: "Colors",
 
       // Product Detail
       size: "Size",
@@ -258,6 +260,8 @@ export const RESOURCES = {
       onSale: "في التخفيضات",
       outOfStock: "غير متوفر",
       newArrival: "وصول جديد",
+      sizes: "المقاسات",
+      colors: "الألوان",
 
       // Product Detail
       size: "المقاس",

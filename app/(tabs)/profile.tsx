@@ -15,7 +15,6 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useTranslation } from "react-i18next";
 import { useRTL } from "@/components/rtl-view";
 import { useDirection } from "@/components/direction-provider";
-import * as Updates from "expo-updates";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { LANGUAGE_KEY } from "@/lib/i18n";
 import { useCartContext } from "@/contexts/CartContext";
@@ -62,31 +61,14 @@ export default function ProfileScreen() {
 
   const changeLanguage = async (lang: string) => {
     try {
-      // persist selection so it survives app reload
+      // Persist selection so it survives app reload
       try {
         await AsyncStorage.setItem(LANGUAGE_KEY, lang);
       } catch (e) {
         console.warn("Failed to persist language choice", e);
       }
+      // Change language - DirectionProvider will handle RTL instantly
       await i18n.changeLanguage(lang);
-
-      // Show alert and restart app for RTL changes to take effect
-      Alert.alert(t("languageChanged"), t("appWillRestart"), [
-        {
-          text: t("ok"),
-          onPress: async () => {
-            try {
-              await Updates.reloadAsync();
-            } catch (error) {
-              console.error("Failed to restart app:", error);
-              Alert.alert(
-                "Error",
-                "Failed to restart app. Please restart manually."
-              );
-            }
-          },
-        },
-      ]);
     } catch (error) {
       console.error("Error changing language:", error);
     }
@@ -176,7 +158,7 @@ export default function ProfileScreen() {
                   style={[
                     dynamicStyles.languageButtonText,
                     i18n.language === "en" &&
-                      dynamicStyles.languageButtonTextActive,
+                    dynamicStyles.languageButtonTextActive,
                   ]}
                 >
                   {t("english")}
@@ -193,7 +175,7 @@ export default function ProfileScreen() {
                   style={[
                     dynamicStyles.languageButtonText,
                     i18n.language === "ar" &&
-                      dynamicStyles.languageButtonTextActive,
+                    dynamicStyles.languageButtonTextActive,
                   ]}
                 >
                   {t("arabic")}

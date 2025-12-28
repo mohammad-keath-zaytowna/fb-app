@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, ScrollView, Pressable, StyleSheet, KeyboardAvoidingView, Platform } from "react-native";
+import { View, Text, ScrollView, Pressable, StyleSheet, KeyboardAvoidingView, Platform, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { Image } from "expo-image";
@@ -44,7 +44,23 @@ export default function LoginScreen() {
       }
     } catch (error: any) {
       console.error("Login error:", error);
-      // You can add toast notification here
+
+      // Display error message to user
+      let errorMessage = "Login failed. Please try again.";
+
+      if (error.message) {
+        errorMessage = error.message;
+      } else if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (!error.response) {
+        errorMessage = "Network error. Please check your connection.";
+      }
+
+      Alert.alert(
+        t('error') || "Error",
+        errorMessage,
+        [{ text: t('ok') || "OK" }]
+      );
     } finally {
       setIsLoading(false);
     }

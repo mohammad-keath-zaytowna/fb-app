@@ -1,5 +1,6 @@
-import apiClient from "./config";
+import apiClient, { API_BASE_URL } from "./config";
 import { Product } from "@/types";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export interface GetProductsParams {
   page?: number;
@@ -91,13 +92,27 @@ export const createProduct = async (productData: {
     if (productData.image) {
       // For React Native, image from expo-image-picker has uri property
       const imageUri = productData.image.uri || productData.image;
-      const imageName = productData.image.fileName || `image_${Date.now()}.jpg`;
-      const imageType = productData.image.type || "image/jpeg";
+      
+      // Get file extension and determine MIME type
+      const uriParts = imageUri.split('.');
+      const fileExtension = uriParts[uriParts.length - 1].toLowerCase();
+      const mimeTypes: Record<string, string> = {
+        'jpg': 'image/jpeg',
+        'jpeg': 'image/jpeg',
+        'png': 'image/png',
+        'gif': 'image/gif',
+        'webp': 'image/webp',
+      };
+      const mimeType = mimeTypes[fileExtension] || 'image/jpeg';
+      
+      // Create proper file name
+      const fileName = productData.image.fileName || `product_${Date.now()}.${fileExtension}`;
 
+      // React Native requires this specific format for file uploads
       formData.append("image", {
         uri: imageUri,
-        name: imageName,
-        type: imageType,
+        name: fileName,
+        type: mimeType,
       } as any);
     }
 
@@ -113,11 +128,22 @@ export const createProduct = async (productData: {
       formData.append("sizes", JSON.stringify(productData.sizes));
     }
 
-    const { data } = await apiClient.post("/products", formData, {
+    const token = await AsyncStorage.getItem("@auth_token");
+    
+    const response = await fetch(`${API_BASE_URL}/products`, {
+      method: 'POST',
       headers: {
-        "Content-Type": "multipart/form-data",
+        'Authorization': token ? `Bearer ${token}` : '',
       },
+      body: formData,
     });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Failed to create product');
+    }
+
+    const data = await response.json();
     return data?.data?.product;
   } catch (error: any) {
     const message =

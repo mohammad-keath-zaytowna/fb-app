@@ -72,10 +72,13 @@ export default function AddProductScreen() {
           onPress: () => {
             form.reset();
             setImage(null);
+            setColors([]);
+            setSizes([]);
           },
         },
       ]);
     } catch (error: any) {
+      console.log('error', error);
       Alert.alert(t('error'), error.message || t('failedToCreateProduct'));
     } finally {
       setIsLoading(false);
@@ -207,7 +210,7 @@ export default function AddProductScreen() {
 
                 {/* Sizes */}
                 <View style={{ marginTop: 16 }}>
-                  <Text style={styles.sectionTitle}>Sizes</Text>
+                  <Text style={styles.sectionTitle}>{t('sizes')}</Text>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                     <Input style={{ flex: 1 }}>
                       <InputField

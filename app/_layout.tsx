@@ -38,7 +38,6 @@ export default function RootLayout() {
                     name="(auth)"
                     options={{
                       headerShown: false,
-                      // Prevent going back to auth after login
                       gestureEnabled: false,
                     }}
                   />
