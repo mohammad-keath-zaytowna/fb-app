@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { API_BASE_URL } from "@/lib/api/config";
-import { getOrderById } from "@/lib/api/orders";
+import { getOrderById, updateOrder } from "@/lib/api/orders";
 import { useAuthContext } from "@/contexts/AuthContext";
 import { formatPrice, formatPriceValue, getUserCurrency } from "@/lib/utils/currency";
 import { Order } from "@/types";
@@ -9,6 +9,8 @@ import { router, useLocalSearchParams } from "expo-router";
 import { ArrowLeft, MoreVertical } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
 import {
+  ActivityIndicator,
+  Alert,
   Pressable,
   RefreshControl,
   ScrollView,
@@ -25,6 +27,7 @@ export default function OrderDetailScreen() {
   const [order, setOrder] = useState<Order | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [updatingStatus, setUpdatingStatus] = useState(false);
   const [userNotes, setUserNotes] = useState("");
   const [facebookProfile, setFacebookProfile] = useState("");
   const { t } = useTranslation();
@@ -55,6 +58,43 @@ export default function OrderDetailScreen() {
     setRefreshing(true);
     await loadOrder();
     setRefreshing(false);
+  };
+
+  const handleStatusUpdate = async (newStatus: "pending" | "cancelled") => {
+    if (!order) return;
+
+    const statusText = newStatus === "cancelled" ? t("canceled") : t("pending");
+    const confirmMessage = `${t("areYouSureChangeStatus")} ${statusText}?`;
+
+    Alert.alert(
+      t("confirmStatusChange"),
+      confirmMessage,
+      [
+        {
+          text: t("cancel"),
+          style: "cancel",
+        },
+        {
+          text: t("confirm"),
+          onPress: async () => {
+            setUpdatingStatus(true);
+            try {
+              await updateOrder(id, { status: newStatus });
+              await loadOrder(); // Reload order to get updated data
+              Alert.alert(t("success"), t("orderStatusUpdated"));
+            } catch (error: any) {
+              Alert.alert(
+                t("error"),
+                error?.message || t("failedToUpdateStatus")
+              );
+            } finally {
+              setUpdatingStatus(false);
+            }
+          },
+        },
+      ],
+      { cancelable: true }
+    );
   };
 
   if (isLoading || !order) {
@@ -119,6 +159,53 @@ export default function OrderDetailScreen() {
               >
                 {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
               </Text>
+            </View>
+
+            {/* Status Update Buttons */}
+            <View style={styles.statusButtonsContainer}>
+              <Pressable
+                style={[
+                  styles.statusButton,
+                  styles.pendingButton,
+                  (updatingStatus || order.status.toLowerCase() === "pending") &&
+                  styles.statusButtonDisabled,
+                ]}
+                onPress={() => handleStatusUpdate("pending")}
+                disabled={updatingStatus || order.status.toLowerCase() === "pending"}
+              >
+                {updatingStatus ? (
+                  <ActivityIndicator size="small" color="#F59E0B" />
+                ) : (
+                  <Text style={[styles.statusButtonText, { color: "#F59E0B" }]}>
+                    {t("markAsPending")}
+                  </Text>
+                )}
+              </Pressable>
+
+              <Pressable
+                style={[
+                  styles.statusButton,
+                  styles.cancelButton,
+                  (updatingStatus ||
+                    order.status.toLowerCase() === "cancelled" ||
+                    order.status.toLowerCase() === "canceled") &&
+                  styles.statusButtonDisabled,
+                ]}
+                onPress={() => handleStatusUpdate("cancelled")}
+                disabled={
+                  updatingStatus ||
+                  order.status.toLowerCase() === "cancelled" ||
+                  order.status.toLowerCase() === "canceled"
+                }
+              >
+                {updatingStatus ? (
+                  <ActivityIndicator size="small" color="#EF4444" />
+                ) : (
+                  <Text style={[styles.statusButtonText, { color: "#EF4444" }]}>
+                    {t("cancelOrder")}
+                  </Text>
+                )}
+              </Pressable>
             </View>
           </View>
 
@@ -229,6 +316,36 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   statusText: {
+    fontSize: 14,
+    fontWeight: "600",
+  },
+  statusButtonsContainer: {
+    flexDirection: "row",
+    gap: 12,
+    marginTop: 16,
+  },
+  statusButton: {
+    flex: 1,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    borderWidth: 1.5,
+    alignItems: "center",
+    justifyContent: "center",
+    minHeight: 44,
+  },
+  pendingButton: {
+    borderColor: "#F59E0B",
+    backgroundColor: "#FEF3C7",
+  },
+  cancelButton: {
+    borderColor: "#EF4444",
+    backgroundColor: "#FEE2E2",
+  },
+  statusButtonDisabled: {
+    opacity: 0.5,
+  },
+  statusButtonText: {
     fontSize: 14,
     fontWeight: "600",
   },

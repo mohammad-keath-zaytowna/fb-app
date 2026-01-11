@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { API_BASE_URL } from "@/lib/api/config";
 import { createOrder } from "@/lib/api/orders";
 import { getProductById } from "@/lib/api/products";
-import { orderFormSchema } from "@/lib/forms/order";
+import { getOrderFormSchema } from "@/lib/forms/order";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Image } from "expo-image";
 import { router, useLocalSearchParams } from "expo-router";
@@ -25,6 +25,8 @@ import { useCartContext } from "@/contexts/CartContext";
 import { useDirection } from "@/components/direction-provider";
 import { formatPrice, getUserCurrency } from "@/lib/utils/currency";
 import { useAuthContext } from "@/contexts/AuthContext";
+import RHFInput from "@/components/react-hook-form/rhf-input";
+import RHFTextarea from "@/components/react-hook-form/rhf-textarea";
 
 export default function NewOrderScreen() {
   const {
@@ -92,8 +94,11 @@ export default function NewOrderScreen() {
     totalValue: styles.totalValue,
   };
 
-  const form = useForm<z.infer<typeof orderFormSchema>>({
-    resolver: zodResolver(orderFormSchema),
+  const orderFormSchema = getOrderFormSchema(t);
+  type OrderFormValues = z.infer<typeof orderFormSchema>;
+
+  const form = useForm<OrderFormValues>({
+    resolver: zodResolver(orderFormSchema) as any,
     defaultValues: {
       userName: "",
       phoneNumber: "",
@@ -104,7 +109,7 @@ export default function NewOrderScreen() {
       userNotes: "",
       facebookProfile: "",
     },
-    mode: "onChange",
+    mode: "onBlur",
   });
 
   useEffect(() => {
@@ -164,7 +169,7 @@ export default function NewOrderScreen() {
     removeFromCart(item.id, item.size, item.color);
   };
 
-  const handleSubmit = async (data: z.infer<typeof orderFormSchema>) => {
+  const handleSubmit = async (data: OrderFormValues) => {
     if (cartItems.length === 0) {
       Alert.alert(t("error"), t("addAtLeastOneProduct"));
       return;
@@ -312,70 +317,45 @@ export default function NewOrderScreen() {
             <View style={dynamicStyles.section}>
               <Text style={dynamicStyles.sectionTitle}>{t("userInformation")}</Text>
 
-              <View style={dynamicStyles.inputGroup}>
-                <Text style={dynamicStyles.inputLabel}>{t("userName")} *</Text>
-                <TextInput
-                  style={dynamicStyles.input}
-                  placeholder={t("enterUserName")}
-                  value={form.watch("userName")}
-                  onChangeText={(text) => form.setValue("userName", text)}
-                />
-              </View>
+              <RHFInput
+                name="userName"
+                label={`${t("userName")} *`}
+                placeholder={t("enterUserName")}
+                type="text"
+              />
 
-              <View style={dynamicStyles.inputGroup}>
-                <Text style={dynamicStyles.inputLabel}>{t("phoneNumber")} *</Text>
-                <TextInput
-                  style={dynamicStyles.input}
-                  placeholder={t("enterPhoneNumber")}
-                  keyboardType="phone-pad"
-                  value={form.watch("phoneNumber")}
-                  onChangeText={(text) => form.setValue("phoneNumber", text)}
-                />
-              </View>
+              <RHFInput
+                name="phoneNumber"
+                label={`${t("phoneNumber")} *`}
+                placeholder={t("enterPhoneNumber")}
+                type="text"
+              />
 
-              <View style={dynamicStyles.inputGroup}>
-                <Text style={dynamicStyles.inputLabel}>{t("address")} *</Text>
-                <TextInput
-                  style={[dynamicStyles.input, dynamicStyles.textArea]}
-                  multiline
-                  numberOfLines={3}
-                  placeholder={t("enterDeliveryAddress")}
-                  value={form.watch("address")}
-                  onChangeText={(text) => form.setValue("address", text)}
-                  textAlignVertical="top"
-                />
-              </View>
+              <RHFTextarea
+                name="address"
+                label={`${t("address")} *`}
+                placeholder={t("enterDeliveryAddress")}
+                numberOfLines={3}
+              />
             </View>
 
             {/* Shipping & Notes */}
             <View style={dynamicStyles.section}>
               <Text style={dynamicStyles.sectionTitle}>{t("shippingAndNotes")}</Text>
 
-              <View style={dynamicStyles.inputGroup}>
-                <Text style={dynamicStyles.inputLabel}>{t("notes")}</Text>
-                <TextInput
-                  style={[dynamicStyles.input, dynamicStyles.textArea]}
-                  multiline
-                  numberOfLines={3}
-                  placeholder={t("internalNotes")}
-                  value={form.watch("notes")}
-                  onChangeText={(text) => form.setValue("notes", text)}
-                  textAlignVertical="top"
-                />
-              </View>
+              <RHFTextarea
+                name="notes"
+                label={t("notes")}
+                placeholder={t("internalNotes")}
+                numberOfLines={3}
+              />
 
-              <View style={dynamicStyles.inputGroup}>
-                <Text style={dynamicStyles.inputLabel}>{t("userNotes")}</Text>
-                <TextInput
-                  style={[dynamicStyles.input, dynamicStyles.textArea]}
-                  multiline
-                  numberOfLines={3}
-                  placeholder={t("userNotesPlaceholder")}
-                  value={form.watch("userNotes")}
-                  onChangeText={(text) => form.setValue("userNotes", text)}
-                  textAlignVertical="top"
-                />
-              </View>
+              <RHFTextarea
+                name="userNotes"
+                label={t("userNotes")}
+                placeholder={t("userNotesPlaceholder")}
+                numberOfLines={3}
+              />
 
               <View style={dynamicStyles.inputGroup}>
                 <Text style={dynamicStyles.inputLabel}>{t("facebookProfile")}</Text>
@@ -392,33 +372,19 @@ export default function NewOrderScreen() {
                 </View>
               </View>
 
-              <View style={dynamicStyles.inputGroup}>
-                <Text style={dynamicStyles.inputLabel}>{t("shippingCost")} *</Text>
-                <TextInput
-                  style={dynamicStyles.input}
-                  placeholder="0.00"
-                  keyboardType="decimal-pad"
-                  value={form.watch("shipping")?.toString() || "0"}
-                  onChangeText={(text) => {
-                    const num = parseFloat(text) || 0;
-                    form.setValue("shipping", num);
-                  }}
-                />
-              </View>
+              <RHFInput
+                name="shipping"
+                label={`${t("shippingCost")} *`}
+                placeholder="0.00"
+                type="number"
+              />
 
-              <View style={dynamicStyles.inputGroup}>
-                <Text style={dynamicStyles.inputLabel}>{t("discount")}</Text>
-                <TextInput
-                  style={dynamicStyles.input}
-                  placeholder="0.00"
-                  keyboardType="decimal-pad"
-                  value={form.watch("discount")?.toString() || "0"}
-                  onChangeText={(text) => {
-                    const num = parseFloat(text) || 0;
-                    form.setValue("discount", num);
-                  }}
-                />
-              </View>
+              <RHFInput
+                name="discount"
+                label={t("discount")}
+                placeholder="0.00"
+                type="number"
+              />
             </View>
 
             {/* Order Summary */}

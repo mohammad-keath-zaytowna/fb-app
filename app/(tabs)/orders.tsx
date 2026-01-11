@@ -108,7 +108,7 @@ export default function OrdersScreen() {
             { color: getStatusColor(item.status) },
           ]}
         >
-          {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
+          {t(item.status)}
         </Text>
       </View>
     </Pressable>
