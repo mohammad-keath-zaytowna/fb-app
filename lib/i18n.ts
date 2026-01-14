@@ -82,6 +82,8 @@ export const RESOURCES = {
       browseProducts: "Browse Products",
       checkout: "Checkout",
       addedToCart: "Added to cart",
+      productOutOfStock: "Product is out of stock",
+      onlyXItemsLeft: "Only {count} items left in stock",
 
       // Orders
       myOrders: "My Orders",
@@ -294,6 +296,8 @@ export const RESOURCES = {
       browseProducts: "تصفح المنتجات",
       checkout: "إتمام الطلب",
       addedToCart: "تمت الإضافة إلى السلة",
+      productOutOfStock: "المنتج غير متوفر",
+      onlyXItemsLeft: "باقي {count} فقط في المخزون",
 
       // Orders
       myOrders: "طلباتي",

@@ -156,7 +156,7 @@ export default function ProductDetailScreen() {
             <Text style={styles.sectionTitle}>{t("color")}</Text>
             <View style={styles.optionsContainer}>
               {colors.map((color) => (
-                  <Pressable
+                <Pressable
                   key={color}
                   style={[
                     styles.optionButton,
@@ -195,38 +195,90 @@ export default function ProductDetailScreen() {
               </Pressable>
               <Text style={styles.quantityText}>{cartItem.quantity}</Text>
               <Pressable
-                style={styles.quantityButton}
-                onPress={() =>
+                style={[
+                  styles.quantityButton,
+                  product.admin?.stockManagement &&
+                  product.stock !== undefined &&
+                  cartItem.quantity >= product.stock &&
+                  styles.quantityButtonDisabled
+                ]}
+                onPress={() => {
+                  // Check stock availability before incrementing
+                  if (product.admin?.stockManagement && product.stock !== undefined) {
+                    if (cartItem.quantity >= product.stock) {
+                      toast.error(`Only ${product.stock} items available in stock`);
+                      return;
+                    }
+                  }
                   updateQuantity(
                     cartItem.id,
                     cartItem.size,
                     cartItem.color,
                     cartItem.quantity + 1
-                  )
+                  );
+                }}
+                disabled={
+                  product.admin?.stockManagement &&
+                  product.stock !== undefined &&
+                  cartItem.quantity >= product.stock
                 }
               >
-                <Plus size={24} color="#111827" />
+                <Plus size={24} color={
+                  product.admin?.stockManagement &&
+                    product.stock !== undefined &&
+                    cartItem.quantity >= product.stock
+                    ? "#9CA3AF"
+                    : "#111827"
+                } />
               </Pressable>
             </View>
           ) : (
-            <Button
-              size="lg"
-              className="w-full mt-6"
-              onPress={() => {
-                addToCart({
-                  id: product._id,
-                  name: product.name,
-                  image: product.image,
-                  size: selectedSize,
-                  color: selectedColor,
-                  price: product.price,
-                  quantity: 1,
-                });
-                toast.success(t("addedToCart"));
-              }}
-            >
-              {t("addToOrder")}
-            </Button>
+            <>
+              {/* Stock Status Display */}
+              {product.admin?.stockManagement && product.stock !== undefined && (
+                <View style={styles.stockContainer}>
+                  {product.stock === 0 ? (
+                    <Text style={styles.outOfStockText}>{t("outOfStock")}</Text>
+                  ) : product.stock <= 5 ? (
+                    <Text style={styles.lowStockText}>
+                      {t("onlyXItemsLeft").replace("{count}", product.stock.toString())}
+                    </Text>
+                  ) : (
+                    <Text style={styles.inStockText}>
+                      {t("inStock")}: {product.stock} {t("items")}
+                    </Text>
+                  )}
+                </View>
+              )}
+              <Button
+                size="lg"
+                className="w-full mt-6"
+                disabled={product.admin?.stockManagement && product.stock === 0}
+                onPress={() => {
+                  // Check stock before adding to cart
+                  if (product.admin?.stockManagement && product.stock !== undefined) {
+                    if (product.stock === 0) {
+                      toast.error(t("productOutOfStock"));
+                      return;
+                    }
+                  }
+                  addToCart({
+                    id: product._id,
+                    name: product.name,
+                    image: product.image,
+                    size: selectedSize,
+                    color: selectedColor,
+                    price: product.price,
+                    quantity: 1,
+                  });
+                  toast.success(t("addedToCart"));
+                }}
+              >
+                {product.admin?.stockManagement && product.stock === 0
+                  ? t("outOfStock")
+                  : t("addToOrder")}
+              </Button>
+            </>
           )}
         </View>
       </ScrollView>
@@ -370,9 +422,38 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#E5E7EB",
   },
+  quantityButtonDisabled: {
+    opacity: 0.5,
+    backgroundColor: "#F3F4F6",
+  },
   quantityText: {
     fontSize: 20,
     fontWeight: "600",
     color: "#111827",
+  },
+  stockContainer: {
+    marginTop: 16,
+    marginBottom: 8,
+    padding: 12,
+    borderRadius: 8,
+    backgroundColor: "#F9FAFB",
+  },
+  outOfStockText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#EF4444",
+    textAlign: "center",
+  },
+  lowStockText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#F59E0B",
+    textAlign: "center",
+  },
+  inStockText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#10B981",
+    textAlign: "center",
   },
 });

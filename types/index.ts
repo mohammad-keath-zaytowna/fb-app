@@ -17,11 +17,16 @@ export type Product = {
   price: number;
   image: string;
   category: string;
+  stock?: number;
   colors?: string[];
   sizes?: string[];
   status?: "active" | "inactive" | "deleted";
   createdAt?: string;
   updatedAt?: string;
+  admin?: {
+    _id: string;
+    stockManagement?: boolean;
+  };
 };
 
 export type OrderItem = {
