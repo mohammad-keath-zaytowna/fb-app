@@ -38,7 +38,7 @@ export function DirectionProvider({ children }: DirectionProviderProps) {
   const { i18n } = useTranslation();
   const isRTL = i18n.language === 'ar';
 
-  console.log('DirectionProvider: language =', i18n.language, 'isRTL =', isRTL);
+ 
 
   const directionValue: DirectionContextType = {
     isRTL,

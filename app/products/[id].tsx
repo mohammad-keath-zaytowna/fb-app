@@ -253,15 +253,14 @@ export default function ProductDetailScreen() {
               <Button
                 size="lg"
                 className="w-full mt-6"
-                disabled={product.admin?.stockManagement && product.stock === 0}
+                disabled={product.stock !== undefined && product.stock === 0}
                 onPress={() => {
                   // Check stock before adding to cart
-                  if (product.admin?.stockManagement && product.stock !== undefined) {
-                    if (product.stock === 0) {
-                      toast.error(t("productOutOfStock"));
-                      return;
-                    }
+                  if (product.stock !== undefined && product.stock === 0) {
+                    toast.error(t("productOutOfStock"));
+                    return;
                   }
+
                   addToCart({
                     id: product._id,
                     name: product.name,
@@ -271,11 +270,12 @@ export default function ProductDetailScreen() {
                     price: product.price,
                     quantity: 1,
                   });
+
                   toast.success(t("addedToCart"));
                 }}
               >
-                {product.admin?.stockManagement && product.stock === 0
-                  ? t("outOfStock")
+                {product.stock !== undefined && product.stock === 0
+                  ? t("productOutOfStock")
                   : t("addToOrder")}
               </Button>
             </>

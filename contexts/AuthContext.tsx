@@ -112,7 +112,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       // Only refetch when app comes to foreground and user is authenticated
       if (nextAppState === "active" && authState.isAuthenticated && authState.user) {
         try {
-          console.log("App became active, refetching user data...");
+         
           const updatedUser = await getCurrentUser();
           setAuthState((prev) => ({
             ...prev,
